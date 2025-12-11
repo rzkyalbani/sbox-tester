@@ -1,16 +1,16 @@
 // Function to render radar chart for normalized metrics
 function renderRadarChart(metricsNormalized) {
     const ctx = document.getElementById('radarChart').getContext('2d');
-    
+
     // Destroy existing chart if it exists
     if (window.radarChartInstance) {
         window.radarChartInstance.destroy();
     }
-    
+
     // Prepare data for the radar chart
     const labels = Object.keys(metricsNormalized);
     const data = Object.values(metricsNormalized);
-    
+
     // Create the radar chart
     window.radarChartInstance = new Chart(ctx, {
         type: 'radar',
@@ -148,3 +148,59 @@ function renderSacChart(sacValue) {
 document.addEventListener('DOMContentLoaded', function() {
     // Charts will be initialized when metrics are computed via displayResults function
 });
+
+// Educational Loading Message System
+const loadingSteps = [
+    "Computing Nonlinearity (NL)…",
+    "Analyzing Avalanche Effect (SAC)…",
+    "Evaluating Bit Independence (BIC)…",
+    "Measuring Differential Uniformity (DU)…",
+    "Checking Linear Approximation Bias (LAP)…",
+    "Assessing Algebraic Degree (AD)…",
+    "Estimating Transparency Order (TO)…",
+    "Finalizing Cryptographic Profile…"
+];
+
+// Educational messages with details
+const educationalMessages = [
+    "Computing Nonlinearity… higher NL increases resistance against linear attacks.",
+    "Evaluating Avalanche Effect… ideal SAC is close to 0.5.",
+    "Checking Bit Independence… ensuring output bits behave unpredictably.",
+    "Analyzing Differential Uniformity… AES S-box uses DU = 4.",
+    "Measuring Linear Approximation Probability… lower LAP = stronger cipher.",
+    "Assessing Algebraic Degree… higher AD increases algebraic complexity.",
+    "Estimating Transparency Order… impacts side-channel resistance.",
+    "Finalizing cryptographic strength evaluation…"
+];
+
+// Function to start the message rotation
+let messageInterval = null;
+
+function startMessageRotation() {
+    // If there's an existing interval, clear it
+    if (messageInterval) {
+        clearInterval(messageInterval);
+    }
+
+    let currentIndex = 0;
+
+    // Update the loading message immediately
+    updateLoadingMessage(currentIndex);
+    currentIndex = (currentIndex + 1) % educationalMessages.length;
+
+    // Set up the interval to rotate messages every 1200ms
+    messageInterval = setInterval(() => {
+        updateLoadingMessage(currentIndex);
+        currentIndex = (currentIndex + 1) % educationalMessages.length;
+    }, 1200);
+}
+
+function updateLoadingMessage(index) {
+    const messageElement = document.getElementById('loadingMessage');
+    if (messageElement) {
+        messageElement.textContent = educationalMessages[index];
+    }
+}
+
+// Store the function in the global window object so it can be called from index.html
+window.startMessageRotation = startMessageRotation;

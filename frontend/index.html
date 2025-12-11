@@ -139,6 +139,12 @@
         </section>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+        <div class="h-10 w-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <p id="loadingMessage" class="mt-4 text-gray-700 text-lg font-medium"></p>
+    </div>
+
     <script>
         // Load available S-boxes on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -184,14 +190,11 @@
                         }
                     }
 
-                    // Show loading message
-                    document.getElementById('results').innerHTML = `
-                        <div class="flex justify-center items-center py-12">
-                            <div class="text-center">
-                                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                                <p class="text-lg text-gray-600">Computing cryptographic metrics...</p>
-                            </div>
-                        </div>`;
+                    // Show loading overlay
+                    showLoadingOverlay();
+                    startEducationalMessages();
+                    showSkeleton();
+                    disableComputeButton();
 
                     // Send the request to the API
                     fetch('/api/compute', {
@@ -209,15 +212,30 @@
                             document.getElementById('results').innerHTML =
                                 `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${data.error}</div>`;
                         }
+
+                        // Hide loading elements
+                        hideLoadingOverlay();
+                        hideSkeleton();
+                        enableComputeButton();
                     })
                     .catch(error => {
                         document.getElementById('results').innerHTML =
                             `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${error.message}</div>`;
+
+                        // Hide loading elements
+                        hideLoadingOverlay();
+                        hideSkeleton();
+                        enableComputeButton();
                     });
 
                 } catch (e) {
                     document.getElementById('results').innerHTML =
                         `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${e.message}</div>`;
+
+                    // Hide loading elements
+                    hideLoadingOverlay();
+                    hideSkeleton();
+                    enableComputeButton();
                 }
             });
 
@@ -287,11 +305,19 @@
                 </div>
             </section>`;
 
-            // Generate metrics grid
+            // Generate metrics grid with skeleton and fade-in animation
             let metricsGrid = `
             <section class="bg-white rounded-xl shadow-md p-6 mb-8">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-6">Detailed Metrics</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+                <div id="metricsSkeleton" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6 animate-pulse">
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                    <div class="h-32 bg-gray-200 rounded-xl"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-500 opacity-0" id="metricsGrid">`;
 
             for (const [key, value] of Object.entries(metrics)) {
                 let valueType = typeof value;
@@ -343,6 +369,11 @@
 
             // Combine all sections
             document.getElementById('results').innerHTML = summaryCard + metricsGrid + visualizationSection;
+
+            // Fade in the metric cards after a short delay
+            setTimeout(() => {
+                document.getElementById('metricsGrid').classList.remove('opacity-0');
+            }, 100);
 
             // Render charts if Chart.js and app.js are available
             if (typeof Chart !== 'undefined') {
@@ -414,6 +445,75 @@
             }
             return normalized;
         }
+
+        // Educational Loading Functions
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showSkeleton() {
+            const skeleton = document.getElementById('metricsSkeleton');
+            if (skeleton) {
+                skeleton.classList.remove('hidden');
+            }
+        }
+
+        function hideSkeleton() {
+            const skeleton = document.getElementById('metricsSkeleton');
+            if (skeleton) {
+                skeleton.classList.add('hidden');
+            }
+        }
+
+        function disableComputeButton() {
+            const button = document.getElementById('compute-btn');
+            if (button) {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function enableComputeButton() {
+            const button = document.getElementById('compute-btn');
+            if (button) {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Function to start educational messages (will be updated by app.js)
+        function startEducationalMessages() {
+            if (window.startMessageRotation) {
+                window.startMessageRotation();
+            }
+        }
+    </script>
+
+    <!-- HTMX Event Handlers -->
+    <script>
+        document.body.addEventListener("htmx:beforeRequest", () => {
+            showLoadingOverlay();
+            startEducationalMessages();
+            showSkeleton();
+            disableComputeButton();
+        });
+
+        document.body.addEventListener("htmx:afterOnLoad", () => {
+            hideLoadingOverlay();
+            hideSkeleton();
+            enableComputeButton();
+            // Add fade-in effect to results
+            const metricsGrid = document.getElementById('metricsGrid');
+            if (metricsGrid) {
+                setTimeout(() => {
+                    metricsGrid.classList.remove('opacity-0');
+                }, 100);
+            }
+        });
     </script>
 
     <!-- Load custom app.js for chart functions -->
