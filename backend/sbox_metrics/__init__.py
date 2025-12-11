@@ -1,0 +1,1 @@
+"""S-box cryptographic metrics package."""

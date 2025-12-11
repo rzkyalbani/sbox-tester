@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-Box Tester</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">S-Box Tester</h1>
+
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <!-- Predefined S-box Selection -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Select Predefined S-box</h2>
+                <div class="flex items-center space-x-4">
+                    <select id="sbox-select" class="flex-1 p-2 border border-gray-300 rounded-md">
+                        <option value="">Choose an S-box...</option>
+                    </select>
+                    <button id="load-sbox-btn"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+                            hx-get="/api/sboxes"
+                            hx-trigger="click"
+                            hx-target="#custom-sbox"
+                            hx-swap="innerHTML">
+                        Load S-box
+                    </button>
+                </div>
+            </div>
+
+            <!-- Custom S-box Input -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Custom S-box Input</h2>
+                <p class="text-gray-600 mb-2">Enter 256 integers between 0 and 255, comma-separated:</p>
+                <textarea
+                    id="custom-sbox"
+                    rows="6"
+                    class="w-full p-3 border border-gray-300 rounded-md font-mono text-sm"
+                    placeholder="e.g., 99,224,149,199,47,218,49,104,... (256 values)"></textarea>
+            </div>
+
+            <!-- Compute Button -->
+            <div class="mb-8 text-center">
+                <button
+                    id="compute-btn"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md text-lg font-medium"
+                >
+                    Compute Metrics
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="mt-8">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load available S-boxes on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/sboxes')
+                .then(response => response.json())
+                .then(sboxes => {
+                    const selectElement = document.getElementById('sbox-select');
+                    sboxes.forEach(sbox => {
+                        const option = document.createElement('option');
+                        option.value = sbox.id;
+                        option.textContent = `${sbox.name} (${sbox.source})`;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading S-boxes:', error);
+                });
+
+            // Set up the compute button to send the current S-box
+            document.getElementById('compute-btn').addEventListener('click', function() {
+                // Get the selected S-box or custom input
+                const customInput = document.getElementById('custom-sbox').value.trim();
+
+                if (!customInput) {
+                    alert('Please enter an S-box in the custom input field.');
+                    return;
+                }
+
+                try {
+                    // Parse the custom input
+                    let sboxToUse = customInput.split(',').map(item => parseInt(item.trim()));
+
+                    if (sboxToUse.length !== 256) {
+                        alert(`Invalid S-box: Expected 256 values, got ${sboxToUse.length}`);
+                        return;
+                    }
+
+                    // Validate that all values are between 0 and 255
+                    for (let val of sboxToUse) {
+                        if (isNaN(val) || val < 0 || val > 255) {
+                            alert(`Invalid value: ${val}. All values must be integers between 0 and 255.`);
+                            return;
+                        }
+                    }
+
+                    // Show loading message
+                    document.getElementById('results').innerHTML = '<div class="loading">Computing metrics...</div>';
+
+                    // Send the request to the API
+                    fetch('/api/compute', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({sbox: sboxToUse})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            displayResults(data.metrics);
+                        } else {
+                            document.getElementById('results').innerHTML =
+                                `<div class="error">Error: ${data.error}</div>`;
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('results').innerHTML =
+                            `<div class="error">Error: ${error.message}</div>`;
+                    });
+
+                } catch (e) {
+                    document.getElementById('results').innerHTML =
+                        `<div class="error">Error: ${e.message}</div>`;
+                }
+            });
+
+            // Update the load-sbox-btn to populate the textarea with selected S-box
+            document.getElementById('load-sbox-btn').addEventListener('click', function() {
+                const selectedSboxId = document.getElementById('sbox-select').value;
+                if (!selectedSboxId) {
+                    alert('Please select an S-box first.');
+                    return;
+                }
+
+                // Fetch the specific S-box data
+                fetch(`/api/sbox/${selectedSboxId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('custom-sbox').value = data.sbox.join(',');
+                    })
+                    .catch(error => {
+                        console.error('Error loading S-box content:', error);
+                        alert('Error loading S-box content. Please try again.');
+                    });
+            });
+        });
+
+        // Function to display results in a nice format
+        function displayResults(metrics) {
+            let html = '<div class="bg-gray-50 p-6 rounded-lg"><h3 class="text-xl font-semibold mb-4">S-Box Metrics</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+
+            for (const [key, value] of Object.entries(metrics)) {
+                html += `
+                <div class="metric-card border border-gray-200 rounded-md p-3">
+                    <div class="font-medium text-gray-700">${key}</div>
+                    <div class="metric-value text-lg">${value}</div>
+                </div>`;
+            }
+
+            html += '</div></div>';
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

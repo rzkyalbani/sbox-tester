@@ -1,0 +1,35 @@
+/* Additional custom styles for the S-Box Tester application */
+/* Tailwind is used primarily, but we can add custom styles here if needed */
+
+/* Custom styles for metric results table */
+.metric-table {
+    @apply w-full border-collapse;
+}
+
+.metric-table th {
+    @apply bg-gray-200 p-3 text-left;
+}
+
+.metric-table td {
+    @apply border-b border-gray-200 p-3;
+}
+
+.metric-card {
+    @apply bg-white rounded-lg shadow p-4 m-2;
+}
+
+.metric-value {
+    @apply font-mono font-bold text-green-600;
+}
+
+.loading {
+    @apply text-center py-4 text-gray-500;
+}
+
+.error {
+    @apply text-center py-4 text-red-500;
+}
+
+.success {
+    @apply text-center py-4 text-green-500;
+}
