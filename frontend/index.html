@@ -3,60 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Box Tester</title>
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <title>S-Box Cryptographic Analyzer</title>
+    <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">S-Box Tester</h1>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">S-Box Cryptographic Analyzer</h1>
+            <p class="text-lg text-gray-600">Visual metrics & analysis for substitution boxes</p>
+        </header>
 
-        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-            <!-- Predefined S-box Selection -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Select Predefined S-box</h2>
-                <div class="flex items-center space-x-4">
-                    <select id="sbox-select" class="flex-1 p-2 border border-gray-300 rounded-md">
-                        <option value="">Choose an S-box...</option>
-                    </select>
-                    <button id="load-sbox-btn"
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-                            hx-get="/api/sboxes"
-                            hx-trigger="click"
-                            hx-target="#custom-sbox"
-                            hx-swap="innerHTML">
-                        Load S-box
-                    </button>
+        <!-- Introduction Card -->
+        <section class="mb-10">
+            <details class="bg-white rounded-xl shadow-md overflow-hidden">
+                <summary class="cursor-pointer px-6 py-4 bg-blue-50 text-blue-800 font-medium flex justify-between items-center">
+                    <span>What is an S-Box? Learn About Cryptography Basics</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </summary>
+                <div class="p-6">
+                    <p class="mb-4">An S-Box (Substitution Box) is a fundamental component in many cryptographic algorithms, including AES (Advanced Encryption Standard). It's essentially a lookup table that performs substitution.</p>
+
+                    <p class="mb-4">S-Boxes are used to introduce non-linearity in cryptographic systems, making them resistant to linear and differential cryptanalysis.</p>
+
+                    <h3 class="font-semibold text-lg mb-2">Why Measure Cryptographic Properties?</h3>
+                    <ul class="list-disc pl-6 mb-4 space-y-2">
+                        <li><strong>Nonlinearity (NL)</strong>: Measures resistance to linear cryptanalysis</li>
+                        <li><strong>Strict Avalanche Criterion (SAC)</strong>: Ensures small input changes affect ~50% of output bits</li>
+                        <li><strong>Bit Independence Criterion (BIC)</strong>: Checks if output bits behave independently</li>
+                        <li><strong>Differential Uniformity (DU)</strong>: Measures resistance to differential attacks</li>
+                        <li><strong>Linear Approximation Probability (LAP)</strong>: Assesses linear bias in the S-box</li>
+                    </ul>
+
+                    <p>These metrics help evaluate how secure an S-Box is against various attack methods.</p>
+                </div>
+            </details>
+        </section>
+
+        <!-- S-Box Selection Section -->
+        <section class="bg-white rounded-xl shadow-md p-6 mb-10">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Analyze Your S-Box</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                <!-- Predefined S-box Selection -->
+                <div>
+                    <label for="sbox-select" class="block text-lg font-medium text-gray-700 mb-3">Choose a Predefined S-box</label>
+                    <div class="flex items-center space-x-4">
+                        <select id="sbox-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                            <option value="">Select an S-box...</option>
+                        </select>
+                        <button id="load-sbox-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition duration-200 font-medium">
+                            Load
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom S-box Input -->
+                <div>
+                    <label for="custom-sbox" class="block text-lg font-medium text-gray-700 mb-3">Or Enter Custom S-box</label>
+                    <p class="text-gray-600 mb-3">Enter 256 integers between 0 and 255, comma-separated:</p>
+                    <textarea
+                        id="custom-sbox"
+                        rows="4"
+                        class="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        placeholder="e.g., 99,224,149,199,47,218,49,104,... (256 values)">
+                    </textarea>
                 </div>
             </div>
 
-            <!-- Custom S-box Input -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Custom S-box Input</h2>
-                <p class="text-gray-600 mb-2">Enter 256 integers between 0 and 255, comma-separated:</p>
-                <textarea
-                    id="custom-sbox"
-                    rows="6"
-                    class="w-full p-3 border border-gray-300 rounded-md font-mono text-sm"
-                    placeholder="e.g., 99,224,149,199,47,218,49,104,... (256 values)"></textarea>
-            </div>
-
             <!-- Compute Button -->
-            <div class="mb-8 text-center">
+            <div class="text-center mt-8">
                 <button
                     id="compute-btn"
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md text-lg font-medium"
-                >
-                    Compute Metrics
+                    class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Compute Cryptographic Metrics
                 </button>
             </div>
+        </section>
 
-            <!-- Results Section -->
-            <div id="results" class="mt-8">
-                <!-- Results will be loaded here -->
-            </div>
+        <!-- Results Section -->
+        <div id="results" class="space-y-10">
+            <!-- Results will be loaded here -->
         </div>
+
+        <!-- Metric Explanations Section -->
+        <section class="mt-12">
+            <details class="bg-white rounded-xl shadow-md overflow-hidden">
+                <summary class="cursor-pointer px-6 py-4 bg-indigo-50 text-indigo-800 font-medium flex justify-between items-center">
+                    <span>How These Metrics Work</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </summary>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Nonlinearity (NL)</h3>
+                            <p class="mb-4">Measures how far the S-box is from any linear function. Higher values indicate stronger resistance to linear cryptanalysis. For an 8x8 S-box, the theoretical maximum is 120.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Strict Avalanche Criterion (SAC)</h3>
+                            <p class="mb-4">Measures the probability that flipping one input bit changes each output bit. An ideal value is 0.5, meaning output bits change independently with 50% probability.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Bit Independence Criterion (BIC)</h3>
+                            <p class="mb-4">Checks if output bits behave independently of each other. High values indicate good independence properties.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Differential Uniformity (DU)</h3>
+                            <p class="mb-4">Measures resistance to differential cryptanalysis. Lower values indicate better security. An ideal value is 2.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Linear Approximation Probability (LAP)</h3>
+                            <p class="mb-4">Assesses the linear bias in the S-box. Lower values indicate better resistance to linear attacks. Ideal value approaches 0.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Difference Distribution Table (DAP)</h3>
+                            <p class="mb-4">Shows the maximum probability in the difference distribution table. Lower values indicate better resistance to differential attacks.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Absolute Indicator (AD)</h3>
+                            <p class="mb-4">Related to the nonlinearity of the S-box. Higher values typically indicate stronger cryptographic properties.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Transparency Order (TO)</h3>
+                            <p class="mb-4">Measures resistance to side-channel attacks. Higher values indicate better resistance to first-order correlation power analysis.</p>
+
+                            <h3 class="font-semibold text-lg mb-2 text-blue-600">Correlation Immunity (CI)</h3>
+                            <p class="mb-4">Measures resistance to correlation attacks. Higher values indicate better cryptographic strength.</p>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </section>
     </div>
 
     <script>
@@ -105,7 +185,13 @@
                     }
 
                     // Show loading message
-                    document.getElementById('results').innerHTML = '<div class="loading">Computing metrics...</div>';
+                    document.getElementById('results').innerHTML = `
+                        <div class="flex justify-center items-center py-12">
+                            <div class="text-center">
+                                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                <p class="text-lg text-gray-600">Computing cryptographic metrics...</p>
+                            </div>
+                        </div>`;
 
                     // Send the request to the API
                     fetch('/api/compute', {
@@ -121,17 +207,17 @@
                             displayResults(data.metrics);
                         } else {
                             document.getElementById('results').innerHTML =
-                                `<div class="error">Error: ${data.error}</div>`;
+                                `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${data.error}</div>`;
                         }
                     })
                     .catch(error => {
                         document.getElementById('results').innerHTML =
-                            `<div class="error">Error: ${error.message}</div>`;
+                            `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${error.message}</div>`;
                     });
 
                 } catch (e) {
                     document.getElementById('results').innerHTML =
-                        `<div class="error">Error: ${e.message}</div>`;
+                        `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">Error: ${e.message}</div>`;
                 }
             });
 
@@ -158,19 +244,179 @@
 
         // Function to display results in a nice format
         function displayResults(metrics) {
-            let html = '<div class="bg-gray-50 p-6 rounded-lg"><h3 class="text-xl font-semibold mb-4">S-Box Metrics</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+            // Determine overall score based on metrics
+            let overallScore = "Moderate";
+            let scoreColor = "bg-yellow-100 border-yellow-400";
+            let scoreDescription = "This S-box has moderate cryptographic properties.";
 
-            for (const [key, value] of Object.entries(metrics)) {
-                html += `
-                <div class="metric-card border border-gray-200 rounded-md p-3">
-                    <div class="font-medium text-gray-700">${key}</div>
-                    <div class="metric-value text-lg">${value}</div>
-                </div>`;
+            // Evaluate based on key metrics
+            if (metrics.NL >= 100 && metrics.SAC >= 0.48 && metrics.DU <= 8) {
+                overallScore = "Strong";
+                scoreColor = "bg-green-100 border-green-400";
+                scoreDescription = "This S-box exhibits strong cryptographic properties and high resistance to known attacks.";
+            } else if (metrics.NL >= 80 && metrics.SAC >= 0.45 && metrics.DU <= 16) {
+                overallScore = "Good";
+                scoreColor = "bg-blue-100 border-blue-400";
+                scoreDescription = "This S-box has good cryptographic properties with decent resistance to most attacks.";
+            } else if (metrics.NL < 60 || metrics.DU > 32) {
+                overallScore = "Weak";
+                scoreColor = "bg-red-100 border-red-400";
+                scoreDescription = "This S-box has weak cryptographic properties and low resistance to attacks.";
             }
 
-            html += '</div></div>';
-            document.getElementById('results').innerHTML = html;
+            // Create the summary card
+            const summaryCard = `
+            <section class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Analysis Summary</h2>
+                <div class="p-6 ${scoreColor} border rounded-xl shadow-sm">
+                    <div class="flex flex-col items-center justify-center text-center">
+                        <h3 class="text-3xl font-bold mb-2">
+                            ${overallScore} S-Box
+                            <span class="inline-block ml-3 px-3 py-1 rounded-full text-sm font-semibold ${
+                                overallScore === "Strong" ? "bg-green-200 text-green-800" :
+                                overallScore === "Good" ? "bg-blue-200 text-blue-800" :
+                                overallScore === "Moderate" ? "bg-yellow-200 text-yellow-800" :
+                                "bg-red-200 text-red-800"
+                            }">Quality Score</span>
+                        </h3>
+                        <div class="text-lg font-medium text-gray-700 mb-4">
+                            Nonlinearity: ${metrics.NL.toFixed(2)}, SAC: ${(metrics.SAC * 100).toFixed(2)}%, DU: ${metrics.DU}
+                        </div>
+                        <p class="text-gray-700 max-w-2xl">${scoreDescription}</p>
+                    </div>
+                </div>
+            </section>`;
+
+            // Generate metrics grid
+            let metricsGrid = `
+            <section class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Detailed Metrics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+
+            for (const [key, value] of Object.entries(metrics)) {
+                let valueType = typeof value;
+                let displayValue = value;
+
+                // Format values appropriately
+                if (valueType === 'number') {
+                    if (key === 'SAC') {
+                        displayValue = (value * 100).toFixed(2) + '%';
+                    } else {
+                        displayValue = value.toFixed(key === 'NL' ? 2 : 4);
+                    }
+                }
+
+                // Get explanation for each metric
+                let explanation = getMetricExplanation(key);
+
+                metricsGrid += `
+                    <div class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">${key}</h3>
+                        <div class="text-3xl font-bold ${
+                            key === 'NL' && value >= 100 ? 'text-green-600' :
+                            key === 'SAC' && value >= 0.48 ? 'text-green-600' :
+                            key === 'DU' && value <= 8 ? 'text-green-600' :
+                            key === 'DU' && value > 32 ? 'text-red-600' :
+                            'text-blue-600'
+                        }">${displayValue}</div>
+                        <p class="text-sm text-gray-600 mt-3">${explanation}</p>
+                    </div>`;
+            }
+
+            metricsGrid += `</div></section>`;
+
+            // Add visualization section
+            const visualizationSection = `
+            <section class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Visualizations</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-medium text-lg text-gray-800 mb-4 text-center">Cryptographic Metrics Overview</h3>
+                        <canvas id="radarChart" width="400" height="400"></canvas>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-medium text-lg text-gray-800 mb-4 text-center">SAC Distribution</h3>
+                        <canvas id="sacChart" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </section>`;
+
+            // Combine all sections
+            document.getElementById('results').innerHTML = summaryCard + metricsGrid + visualizationSection;
+
+            // Render charts if Chart.js and app.js are available
+            if (typeof Chart !== 'undefined') {
+                // Check if chart functions are available, otherwise wait for them to load
+                if (typeof renderRadarChart !== 'undefined' && typeof renderSacChart !== 'undefined') {
+                    // Normalize metrics for radar chart
+                    const normalizedMetrics = normalizeMetricsForChart(metrics);
+                    renderRadarChart(normalizedMetrics);
+
+                    // Render SAC chart
+                    renderSacChart(metrics.SAC);
+                } else {
+                    // If functions aren't available yet, set a short timeout to try again
+                    setTimeout(function() {
+                        if (typeof renderRadarChart !== 'undefined' && typeof renderSacChart !== 'undefined') {
+                            const normalizedMetrics = normalizeMetricsForChart(metrics);
+                            renderRadarChart(normalizedMetrics);
+                            renderSacChart(metrics.SAC);
+                        } else {
+                            console.error('Chart functions are not available after timeout');
+                        }
+                    }, 100);
+                }
+            }
+        }
+
+        // Helper function to get metric explanations
+        function getMetricExplanation(key) {
+            const explanations = {
+                'NL': 'Nonlinearity measures resistance to linear cryptanalysis. Higher is better.',
+                'SAC': 'Strict Avalanche Criterion measures bit independence. Ideal value is 0.5.',
+                'BIC_NL': 'Bit Independence Criterion (Nonlinearity) checks output bit independence.',
+                'BIC_SAC': 'Bit Independence Criterion (SAC) evaluates avalanche effect independence.',
+                'LAP': 'Linear Approximation Probability assesses linear bias. Lower is better.',
+                'DAP': 'Differential Approximation Probability measures differential bias. Lower is better.',
+                'DU': 'Differential Uniformity indicates resistance to differential attacks. Lower is better.',
+                'AD': 'Absolute Indicator relates to nonlinearity. Higher values indicate stronger properties.',
+                'TO': 'Transparency Order measures resistance to side-channel attacks. Higher is better.',
+                'CI': 'Correlation Immunity measures resistance to correlation attacks. Higher is better.'
+            };
+            return explanations[key] || 'Cryptographic property measurement.';
+        }
+
+        // Function to normalize metrics for radar chart
+        function normalizeMetricsForChart(metrics) {
+            // Define ideal values or max values for normalization
+            const idealMaxValues = {
+                'NL': 120,
+                'SAC': 1,
+                'BIC_NL': 120,
+                'BIC_SAC': 0.5,
+                'LAP': 0.25, // Max possible value
+                'DAP': 0.25,
+                'DU': 2, // Theoretical minimum
+                'AD': 100, // Reference value
+                'TO': 1, // Reference value
+                'CI': 1 // Reference value
+            };
+
+            const normalized = {};
+            for (const [key, value] of Object.entries(metrics)) {
+                // For metrics where lower is better, invert the value
+                if (['LAP', 'DAP', 'DU'].includes(key)) {
+                    normalized[key] = 1 - Math.min(value / idealMaxValues[key], 1);
+                } else {
+                    // For metrics where higher is better
+                    normalized[key] = Math.min(value / idealMaxValues[key], 1);
+                }
+            }
+            return normalized;
         }
     </script>
+
+    <!-- Load custom app.js for chart functions -->
+    <script src="/static/app.js"></script>
 </body>
 </html>

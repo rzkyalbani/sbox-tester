@@ -2,7 +2,10 @@ from flask import Flask, jsonify, request, send_from_directory
 import os
 import json
 
-app = Flask(__name__)
+# Set up Flask app with proper static folder configuration
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+frontend_static = os.path.join(project_root, 'frontend', 'static')
+app = Flask(__name__, static_folder=frontend_static, static_url_path='/static')
 
 @app.route('/')
 def index():
