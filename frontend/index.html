@@ -315,7 +315,7 @@
                             <span class="inline-block ml-3 px-3 py-1 rounded-full text-sm font-semibold ${overallScore === "Strong" ? "bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200" : overallScore === "Good" ? "bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200" : overallScore === "Moderate" ? "bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200" : "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200"}">Skor Kualitas</span>
                         </h3>
                         <div class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">
-                            Nonlinearitas: ${metrics.NL.toFixed(2)}, SAC: ${(metrics.SAC * 100).toFixed(2)}%, DU: ${metrics.DU}
+                            Nonlinearitas: ${metrics.NL.toFixed(2)}, SAC: ${metrics.SAC.toFixed(6)}, DU: ${metrics.DU}
                         </div>
                         <p class="text-gray-700 dark:text-gray-300 max-w-2xl">${scoreDescription}</p>
                     </div>
@@ -343,7 +343,7 @@
                 // Format values appropriately
                 if (valueType === 'number') {
                     if (key === 'SAC') {
-                        displayValue = (value * 100).toFixed(2) + '%';
+                        displayValue = value.toFixed(6);
                     } else {
                         displayValue = value.toFixed(key === 'NL' ? 2 : 4);
                     }

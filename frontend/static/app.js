@@ -241,7 +241,7 @@ function renderSacChart(sacValue) {
                     borderColor: borderColor,
                     callbacks: {
                         label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y.toFixed(4);
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(6);
                         }
                     }
                 }
@@ -253,7 +253,7 @@ function renderSacChart(sacValue) {
                     ticks: {
                         color: textColor,
                         callback: function(value) {
-                            return value.toFixed(2);
+                            return value.toFixed(6);
                         }
                     },
                     grid: {
