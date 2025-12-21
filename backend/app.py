@@ -9,7 +9,19 @@ app = Flask(__name__, static_folder=frontend_static, static_url_path='/static')
 
 @app.route('/')
 def index():
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory('../frontend', 'dashboard.html')
+
+@app.route('/sbox-analysis')
+def sbox_analysis():
+    return send_from_directory('../frontend', 'sbox-analysis.html')
+
+@app.route('/text-encryption')
+def text_encryption():
+    return send_from_directory('../frontend', 'text-encryption.html')
+
+@app.route('/image-encryption')
+def image_encryption():
+    return send_from_directory('../frontend', 'image-encryption.html')
 
 @app.route('/api/sboxes', methods=['GET'])
 def get_sboxes():

@@ -19,7 +19,7 @@
     </script>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Header Section with controls -->
         <header class="text-center mb-12 flex flex-col sm:flex-row justify-between items-center">
             <div>
@@ -29,7 +29,7 @@
 
             <!-- Dark Mode Toggle -->
             <div class="flex space-x-4 mt-4 sm:mt-0">
-                <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors duration-200">
+                <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600">
                     <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                     </svg>
@@ -66,27 +66,42 @@
         </section>
 
         <!-- S-Box Selection Section -->
-        <section class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-10">
-            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Analisis S-Box Anda</h2>
+        <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10 transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                </svg>
+                Analisis S-Box Anda
+            </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
                 <!-- Predefined S-box Selection -->
-                <div>
-                    <label for="sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pilih S-Box Bawaan</label>
-                    <div class="flex items-center space-x-4">
-                        <select id="sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl">
+                    <label for="sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Pilih S-Box Bawaan
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <select id="sbox-select" class="flex-grow p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                             <option value="">Pilih S-Box...</option>
                         </select>
-                        <button id="load-sbox-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition duration-200 font-medium">
-                            Muat
+                        <button id="load-sbox-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition duration-200 font-medium whitespace-nowrap">
+                            Muat S-Box
                         </button>
                     </div>
                 </div>
 
                 <!-- Custom S-box Input -->
-                <div>
-                    <label for="custom-sbox" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Atau Masukkan S-Box Kustom</label>
-                    <p class="text-gray-600 dark:text-gray-400 mb-3">Masukkan 256 bilangan bulat antara 0 dan 255, dipisahkan koma:</p>
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl">
+                    <label for="custom-sbox" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Atau Masukkan S-Box Kustom
+                    </label>
+                    <p class="text-gray-600 dark:text-gray-400 mb-3 text-sm">Masukkan 256 bilangan bulat antara 0 dan 255, dipisahkan koma:</p>
                     <textarea
                         id="custom-sbox"
                         rows="4"
@@ -100,7 +115,10 @@
             <div class="text-center mt-8">
                 <button
                     id="compute-btn"
-                    class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-green-400/30">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
                     Hitung Metrik Kriptografi
                 </button>
             </div>
@@ -112,21 +130,36 @@
         </div>
 
         <!-- Encryption/Decryption Section -->
-        <section class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Enkripsi & Dekripsi Teks</h2>
+        <section class="mt-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Enkripsi & Dekripsi Teks
+            </h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Input Section -->
-                <div>
-                    <div class="mb-6">
-                        <label for="encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pilih S-Box untuk Enkripsi/Dekripsi</label>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Pilih S-Box untuk Enkripsi/Dekripsi
+                        </label>
                         <select id="encrypt-sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                             <option value="">Pilih S-Box...</option>
                         </select>
                     </div>
 
-                    <div class="mb-6">
-                        <label for="encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Kunci (Password)</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                            Kunci (Password)
+                        </label>
                         <input
                             type="password"
                             id="encrypt-key"
@@ -135,8 +168,13 @@
                         >
                     </div>
 
-                    <div class="mb-6">
-                        <label for="plaintext-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Asli (Plaintext)</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="plaintext-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Teks Asli (Plaintext)
+                        </label>
                         <textarea
                             id="plaintext-input"
                             rows="6"
@@ -145,24 +183,35 @@
                         </textarea>
                     </div>
 
-                    <div class="flex space-x-4">
+                    <div class="flex flex-col sm:flex-row gap-3">
                         <button
                             id="encrypt-btn"
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
                             Enkripsi
                         </button>
                         <button
                             id="decrypt-btn"
-                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                            </svg>
                             Dekripsi
                         </button>
                     </div>
                 </div>
 
                 <!-- Output Section -->
-                <div>
-                    <div class="mb-6">
-                        <label for="ciphertext-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Terenkripsi (Ciphertext)</label>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="ciphertext-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Teks Terenkripsi (Ciphertext)
+                        </label>
                         <textarea
                             id="ciphertext-output"
                             rows="6"
@@ -173,14 +222,22 @@
                         <div class="mt-2 flex justify-end">
                             <button
                                 id="copy-ciphertext-btn"
-                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
                                 Salin
                             </button>
                         </div>
                     </div>
 
-                    <div class="mb-6">
-                        <label for="decrypted-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Didekripsi (Plaintext)</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="decrypted-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            Teks Didekripsi (Plaintext)
+                        </label>
                         <textarea
                             id="decrypted-output"
                             rows="6"
@@ -191,7 +248,10 @@
                         <div class="mt-2 flex justify-end">
                             <button
                                 id="copy-decrypted-btn"
-                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
                                 Salin
                             </button>
                         </div>
@@ -201,21 +261,36 @@
         </section>
 
         <!-- Image Encryption/Decryption Section -->
-        <section class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Enkripsi & Dekripsi Gambar</h2>
+        <section class="mt-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Enkripsi & Dekripsi Gambar
+            </h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Input Section -->
-                <div>
-                    <div class="mb-6">
-                        <label for="image-encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pilih S-Box untuk Enkripsi/Dekripsi Gambar</label>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="image-encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Pilih S-Box untuk Enkripsi/Dekripsi Gambar
+                        </label>
                         <select id="image-encrypt-sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                             <option value="">Pilih S-Box...</option>
                         </select>
                     </div>
 
-                    <div class="mb-6">
-                        <label for="image-encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Kunci (Password)</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="image-encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                            Kunci (Password)
+                        </label>
                         <input
                             type="password"
                             id="image-encrypt-key"
@@ -224,10 +299,15 @@
                         >
                     </div>
 
-                    <div class="mb-6">
-                        <label for="image-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Unggah Gambar</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label for="image-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                            Unggah Gambar
+                        </label>
                         <div class="flex items-center justify-center w-full">
-                            <label for="image-input" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <label for="image-input" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-300 hover:border-blue-500">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                     <svg class="w-10 h-10 mb-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
@@ -238,31 +318,42 @@
                                 <input id="image-input" type="file" class="hidden" accept="image/*" />
                             </label>
                         </div>
-                        <p id="image-filename" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></p>
+                        <p id="image-filename" class="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center"></p>
                     </div>
 
-                    <div class="flex space-x-4">
+                    <div class="flex flex-col sm:flex-row gap-3">
                         <button
                             id="image-encrypt-btn"
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
                             Enkripsi Gambar
                         </button>
                         <button
                             id="image-decrypt-btn"
-                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                            </svg>
                             Dekripsi Gambar
                         </button>
                     </div>
                 </div>
 
                 <!-- Output Section -->
-                <div>
-                    <div class="mb-6">
-                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pratinjau Gambar</label>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Pratinjau Gambar
+                        </label>
                         <div class="flex flex-col items-center justify-center">
-                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">
                                 <img id="original-image-preview" src="" alt="Pratinjau Gambar Asli" class="max-h-full max-w-full object-contain hidden">
-                                <div id="original-image-placeholder" class="text-center text-gray-500 dark:text-gray-400">
+                                <div id="original-image-placeholder" class="text-center text-gray-500 dark:text-gray-400 p-4">
                                     <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
@@ -272,12 +363,17 @@
                         </div>
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pratinjau Hasil</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            Pratinjau Hasil
+                        </label>
                         <div class="flex flex-col items-center justify-center">
-                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">
                                 <img id="result-image-preview" src="" alt="Pratinjau Hasil" class="max-h-full max-w-full object-contain hidden">
-                                <div id="result-image-placeholder" class="text-center text-gray-500 dark:text-gray-400">
+                                <div id="result-image-placeholder" class="text-center text-gray-500 dark:text-gray-400 p-4">
                                     <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
@@ -288,7 +384,10 @@
                         <div class="mt-2 flex justify-end">
                             <button
                                 id="download-result-btn"
-                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 hidden">
+                                class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow hidden flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
                                 Unduh Hasil
                             </button>
                         </div>
@@ -299,43 +398,111 @@
 
         <!-- Metric Explanations Section -->
         <section class="mt-12">
-            <details class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-                <summary class="cursor-pointer px-6 py-4 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 font-medium flex justify-between items-center">
-                    <span>Bagaimana Metrik-Metrik Ini Bekerja</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            <details class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300">
+                <summary class="cursor-pointer px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-800 dark:text-indigo-200 font-bold flex justify-between items-center rounded-2xl">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Bagaimana Metrik-Metrik Ini Bekerja</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </summary>
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Nonlinearitas (NL)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Mengukur seberapa jauh S-Box dari fungsi linear manapun. Nilai yang lebih tinggi menunjukkan ketahanan yang lebih kuat terhadap kriptanalisis linier. Untuk S-Box 8x8, nilai maksimum teoritis adalah 120.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+                                <h3 class="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Nonlinearitas (NL)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Mengukur seberapa jauh S-Box dari fungsi linear manapun. Nilai yang lebih tinggi menunjukkan ketahanan yang lebih kuat terhadap kriptanalisis linier. Untuk S-Box 8x8, nilai maksimum teoritis adalah 120.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Kriteria Avalanche Ketat (SAC)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Mengukur probabilitas bahwa pembalikan satu bit input mengubah setiap bit output. Nilai ideal adalah 0.5, artinya bit output berubah secara independen dengan probabilitas 50%.</p>
+                            <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
+                                <h3 class="font-bold text-lg mb-2 text-green-600 dark:text-green-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                    </svg>
+                                    Kriteria Avalanche Ketat (SAC)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Mengukur probabilitas bahwa pembalikan satu bit input mengubah setiap bit output. Nilai ideal adalah 0.5, artinya bit output berubah secara independen dengan probabilitas 50%.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Kriteria Kemandirian Bit (BIC)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Memeriksa apakah bit-bit output berperilaku secara independen satu sama lain. Nilai tinggi menunjukkan properti independensi yang baik.</p>
+                            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-500">
+                                <h3 class="font-bold text-lg mb-2 text-purple-600 dark:text-purple-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Kriteria Kemandirian Bit (BIC)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Memeriksa apakah bit-bit output berperilaku secara independen satu sama lain. Nilai tinggi menunjukkan properti independensi yang baik.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Uniformitas Diferensial (DU)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap kriptanalisis diferensial. Nilai yang lebih rendah menunjukkan keamanan yang lebih baik. Nilai ideal adalah 2.</p>
+                            <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border-l-4 border-red-500">
+                                <h3 class="font-bold text-lg mb-2 text-red-600 dark:text-red-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                    </svg>
+                                    Uniformitas Diferensial (DU)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap kriptanalisis diferensial. Nilai yang lebih rendah menunjukkan keamanan yang lebih baik. Nilai ideal adalah 2.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Probabilitas Pendekatan Linear (LAP)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Menilai bias linear dalam S-box. Nilai yang lebih rendah menunjukkan ketahanan yang lebih baik terhadap serangan linier. Nilai ideal mendekati 0.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-l-4 border-yellow-500">
+                                <h3 class="font-bold text-lg mb-2 text-yellow-600 dark:text-yellow-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Probabilitas Pendekatan Linear (LAP)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Menilai bias linear dalam S-box. Nilai yang lebih rendah menunjukkan ketahanan yang lebih baik terhadap serangan linier. Nilai ideal mendekati 0.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Tabel Distribusi Diferensial (DAP)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Menampilkan probabilitas maksimum dalam tabel distribusi diferensial. Nilai yang lebih rendah menunjukkan ketahanan yang lebih baik terhadap serangan diferensial.</p>
+                            <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-l-4 border-indigo-500">
+                                <h3 class="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Tabel Distribusi Diferensial (DAP)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Menampilkan probabilitas maksimum dalam tabel distribusi diferensial. Nilai yang lebih rendah menunjukkan ketahanan yang lebih baik terhadap serangan diferensial.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Indikator Absolut (AD)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Berhubungan dengan nonlinearitas S-Box. Nilai-nilai yang lebih tinggi biasanya menunjukkan properti kriptografi yang lebih kuat.</p>
+                            <div class="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border-l-4 border-teal-500">
+                                <h3 class="font-bold text-lg mb-2 text-teal-600 dark:text-teal-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                                    </svg>
+                                    Indikator Absolut (AD)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Berhubungan dengan nonlinearitas S-Box. Nilai-nilai yang lebih tinggi biasanya menunjukkan properti kriptografi yang lebih kuat.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Tingkat Transparansi (TO)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap serangan sisi saluran (side-channel). Nilai-nilai yang lebih tinggi menunjukkan ketahanan yang lebih baik terhadap analisis korelasi kekuatan orde pertama.</p>
+                            <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-l-4 border-amber-500">
+                                <h3 class="font-bold text-lg mb-2 text-amber-600 dark:text-amber-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Tingkat Transparansi (TO)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap serangan sisi saluran (side-channel). Nilai-nilai yang lebih tinggi menunjukkan ketahanan yang lebih baik terhadap analisis korelasi kekuatan orde pertama.</p>
+                            </div>
 
-                            <h3 class="font-semibold text-lg mb-2 text-blue-600 dark:text-blue-400">Imunitas Korelasi (CI)</h3>
-                            <p class="mb-4 text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap serangan korelasi. Nilai-nilai yang lebih tinggi menunjukkan kekuatan kriptografi yang lebih baik.</p>
+                            <div class="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500">
+                                <h3 class="font-bold text-lg mb-2 text-pink-600 dark:text-pink-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Imunitas Korelasi (CI)
+                                </h3>
+                                <p class="text-gray-700 dark:text-gray-300">Mengukur ketahanan terhadap serangan korelasi. Nilai-nilai yang lebih tinggi menunjukkan kekuatan kriptografi yang lebih baik.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
