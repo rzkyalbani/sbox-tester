@@ -98,6 +98,9 @@ def compute_metrics():
 # Import crypto engine
 from crypto_engine import SPNCipher, get_available_sboxes, get_sbox_by_id, validate_sbox
 
+# Import image crypto engine
+from image_crypto_engine import ImageSPNCipher, get_sbox_by_id as get_sbox_by_id_img, validate_sbox as validate_sbox_img
+
 @app.route('/api/encrypt', methods=['POST'])
 def encrypt_text():
     """Enkripsi teks menggunakan S-box tertentu"""
@@ -212,6 +215,101 @@ def decrypt_with_custom_sbox():
 
         return jsonify({"ok": True, "plaintext": plaintext})
 
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# Endpoint untuk enkripsi/dekripsi gambar
+@app.route('/api/image/encrypt', methods=['POST'])
+def encrypt_image():
+    """Enkripsi gambar menggunakan S-box tertentu"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({"ok": False, "error": "Missing 'image' file in request"}), 400
+
+        if 'key' not in request.form or 'sbox_id' not in request.form:
+            return jsonify({"ok": False, "error": "Missing 'key' or 'sbox_id' in request form"}), 400
+
+        image_file = request.files['image']
+        key = request.form['key']
+        sbox_id = request.form['sbox_id']
+
+        if image_file.filename == '':
+            return jsonify({"ok": False, "error": "No image file selected"}), 400
+
+        # Ambil S-box berdasarkan ID
+        sbox = get_sbox_by_id_img(sbox_id)
+
+        # Validasi S-box
+        if not validate_sbox_img(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format"}), 400
+
+        # Buat cipher dan enkripsi gambar
+        cipher = ImageSPNCipher(sbox)
+
+        # Baca file gambar ke buffer
+        image_bytes = image_file.read()
+
+        # Enkripsi gambar
+        encrypted_image_bytes = cipher.encrypt_image_bytes_v2(image_bytes, key)
+
+        # Kembalikan gambar terenkripsi
+        from flask import Response
+        return Response(
+            encrypted_image_bytes,
+            mimetype='image/png',
+            headers={'Content-Disposition': 'attachment; filename=encrypted_image.png'}
+        )
+
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": f"S-box '{sbox_id}' not found"}), 404
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/image/decrypt', methods=['POST'])
+def decrypt_image():
+    """Dekripsi gambar menggunakan S-box tertentu"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({"ok": False, "error": "Missing 'image' file in request"}), 400
+
+        if 'key' not in request.form or 'sbox_id' not in request.form:
+            return jsonify({"ok": False, "error": "Missing 'key' or 'sbox_id' in request form"}), 400
+
+        image_file = request.files['image']
+        key = request.form['key']
+        sbox_id = request.form['sbox_id']
+
+        if image_file.filename == '':
+            return jsonify({"ok": False, "error": "No image file selected"}), 400
+
+        # Ambil S-box berdasarkan ID
+        sbox = get_sbox_by_id_img(sbox_id)
+
+        # Validasi S-box
+        if not validate_sbox_img(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format"}), 400
+
+        # Buat cipher dan dekripsi gambar
+        cipher = ImageSPNCipher(sbox)
+
+        # Baca file gambar ke buffer
+        image_bytes = image_file.read()
+
+        # Dekripsi gambar
+        decrypted_image_bytes = cipher.decrypt_image_bytes_v2(image_bytes, key)
+
+        # Kembalikan gambar terdekripsi
+        from flask import Response
+        return Response(
+            decrypted_image_bytes,
+            mimetype='image/png',
+            headers={'Content-Disposition': 'attachment; filename=decrypted_image.png'}
+        )
+
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": f"S-box '{sbox_id}' not found"}), 404
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 

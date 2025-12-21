@@ -200,6 +200,103 @@
             </div>
         </section>
 
+        <!-- Image Encryption/Decryption Section -->
+        <section class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Enkripsi & Dekripsi Gambar</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div>
+                    <div class="mb-6">
+                        <label for="image-encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pilih S-Box untuk Enkripsi/Dekripsi Gambar</label>
+                        <select id="image-encrypt-sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                            <option value="">Pilih S-Box...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="image-encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Kunci (Password)</label>
+                        <input
+                            type="password"
+                            id="image-encrypt-key"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                            placeholder="Masukkan kunci enkripsi/dekripsi gambar"
+                        >
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="image-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Unggah Gambar</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="image-input" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-10 h-10 mb-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    </svg>
+                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Klik untuk mengunggah</span> atau seret dan lepas</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (MAX. 5MB)</p>
+                                </div>
+                                <input id="image-input" type="file" class="hidden" accept="image/*" />
+                            </label>
+                        </div>
+                        <p id="image-filename" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></p>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button
+                            id="image-encrypt-btn"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            Enkripsi Gambar
+                        </button>
+                        <button
+                            id="image-decrypt-btn"
+                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            Dekripsi Gambar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div>
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pratinjau Gambar</label>
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                                <img id="original-image-preview" src="" alt="Pratinjau Gambar Asli" class="max-h-full max-w-full object-contain hidden">
+                                <div id="original-image-placeholder" class="text-center text-gray-500 dark:text-gray-400">
+                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p>Pratinjau gambar asli akan muncul di sini</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pratinjau Hasil</label>
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                                <img id="result-image-preview" src="" alt="Pratinjau Hasil" class="max-h-full max-w-full object-contain hidden">
+                                <div id="result-image-placeholder" class="text-center text-gray-500 dark:text-gray-400">
+                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p>Hasil enkripsi/dekripsi akan muncul di sini</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-end">
+                            <button
+                                id="download-result-btn"
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 hidden">
+                                Unduh Hasil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Metric Explanations Section -->
         <section class="mt-12">
             <details class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -822,5 +919,213 @@
 
     <!-- Load custom app.js for chart functions -->
     <script src="/static/app.js"></script>
+
+    <!-- Image Encryption/Decryption JavaScript -->
+    <script>
+        // Image encryption/decryption functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load S-boxes for image encryption/decryption dropdown
+            fetch('/api/sboxes')
+                .then(response => response.json())
+                .then(sboxes => {
+                    const selectElement = document.getElementById('image-encrypt-sbox-select');
+                    sboxes.forEach(sbox => {
+                        const option = document.createElement('option');
+                        option.value = sbox.id;
+                        option.textContent = `${sbox.name} (${sbox.source})`;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading S-boxes for image encryption:', error);
+                });
+
+            // Handle image file selection
+            const imageInput = document.getElementById('image-input');
+            const imageFilename = document.getElementById('image-filename');
+            const originalImagePreview = document.getElementById('original-image-preview');
+            const originalImagePlaceholder = document.getElementById('original-image-placeholder');
+
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    imageFilename.textContent = file.name;
+
+                    // Show preview of the original image
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        originalImagePreview.src = event.target.result;
+                        originalImagePreview.classList.remove('hidden');
+                        originalImagePlaceholder.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imageFilename.textContent = '';
+                    originalImagePreview.classList.add('hidden');
+                    originalImagePlaceholder.classList.remove('hidden');
+                }
+            });
+
+            // Set up image encrypt button
+            document.getElementById('image-encrypt-btn').addEventListener('click', function() {
+                const imageFile = imageInput.files[0];
+                const key = document.getElementById('image-encrypt-key').value;
+                const sboxId = document.getElementById('image-encrypt-sbox-select').value;
+
+                if (!imageFile) {
+                    alert('Silakan pilih gambar yang akan dienkripsi.');
+                    return;
+                }
+
+                if (!key) {
+                    alert('Silakan masukkan kunci enkripsi.');
+                    return;
+                }
+
+                if (!sboxId) {
+                    alert('Silakan pilih S-box untuk enkripsi gambar.');
+                    return;
+                }
+
+                // Show loading overlay
+                showLoadingOverlay();
+
+                // Create FormData for the request
+                const formData = new FormData();
+                formData.append('image', imageFile);
+                formData.append('key', key);
+                formData.append('sbox_id', sboxId);
+
+                // Send the request to the API
+                fetch('/api/image/encrypt', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Unknown error occurred');
+                        });
+                    }
+                })
+                .then(blob => {
+                    // Create a URL for the encrypted image
+                    const imageUrl = URL.createObjectURL(blob);
+
+                    // Update the result preview
+                    const resultImagePreview = document.getElementById('result-image-preview');
+                    const resultImagePlaceholder = document.getElementById('result-image-placeholder');
+
+                    resultImagePreview.src = imageUrl;
+                    resultImagePreview.classList.remove('hidden');
+                    resultImagePlaceholder.classList.add('hidden');
+
+                    // Show download button
+                    const downloadBtn = document.getElementById('download-result-btn');
+                    downloadBtn.classList.remove('hidden');
+
+                    // Set up download functionality
+                    downloadBtn.onclick = function() {
+                        const a = document.createElement('a');
+                        a.href = imageUrl;
+                        a.download = 'encrypted_image.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                    console.error('Encryption error:', error);
+                })
+                .finally(() => {
+                    // Hide loading overlay
+                    hideLoadingOverlay();
+                });
+            });
+
+            // Set up image decrypt button
+            document.getElementById('image-decrypt-btn').addEventListener('click', function() {
+                const imageFile = imageInput.files[0];
+                const key = document.getElementById('image-encrypt-key').value;
+                const sboxId = document.getElementById('image-encrypt-sbox-select').value;
+
+                if (!imageFile) {
+                    alert('Silakan pilih gambar yang akan didekripsi.');
+                    return;
+                }
+
+                if (!key) {
+                    alert('Silakan masukkan kunci dekripsi.');
+                    return;
+                }
+
+                if (!sboxId) {
+                    alert('Silakan pilih S-box untuk dekripsi gambar.');
+                    return;
+                }
+
+                // Show loading overlay
+                showLoadingOverlay();
+
+                // Create FormData for the request
+                const formData = new FormData();
+                formData.append('image', imageFile);
+                formData.append('key', key);
+                formData.append('sbox_id', sboxId);
+
+                // Send the request to the API
+                fetch('/api/image/decrypt', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Unknown error occurred');
+                        });
+                    }
+                })
+                .then(blob => {
+                    // Create a URL for the decrypted image
+                    const imageUrl = URL.createObjectURL(blob);
+
+                    // Update the result preview
+                    const resultImagePreview = document.getElementById('result-image-preview');
+                    const resultImagePlaceholder = document.getElementById('result-image-placeholder');
+
+                    resultImagePreview.src = imageUrl;
+                    resultImagePreview.classList.remove('hidden');
+                    resultImagePlaceholder.classList.add('hidden');
+
+                    // Show download button
+                    const downloadBtn = document.getElementById('download-result-btn');
+                    downloadBtn.classList.remove('hidden');
+
+                    // Set up download functionality
+                    downloadBtn.onclick = function() {
+                        const a = document.createElement('a');
+                        a.href = imageUrl;
+                        a.download = 'decrypted_image.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                    console.error('Decryption error:', error);
+                })
+                .finally(() => {
+                    // Hide loading overlay
+                    hideLoadingOverlay();
+                });
+            });
+        });
+    </script>
 </body>
 </html>
