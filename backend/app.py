@@ -95,5 +95,126 @@ def compute_metrics():
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
+# Import crypto engine
+from crypto_engine import SPNCipher, get_available_sboxes, get_sbox_by_id, validate_sbox
+
+@app.route('/api/encrypt', methods=['POST'])
+def encrypt_text():
+    """Enkripsi teks menggunakan S-box tertentu"""
+    try:
+        data = request.get_json()
+
+        if not data or 'plaintext' not in data or 'key' not in data or 'sbox_id' not in data:
+            return jsonify({"ok": False, "error": "Missing 'plaintext', 'key', or 'sbox_id' in request body"}), 400
+
+        plaintext = data['plaintext']
+        key = data['key']
+        sbox_id = data['sbox_id']
+
+        # Ambil S-box berdasarkan ID
+        sbox = get_sbox_by_id(sbox_id)
+
+        # Validasi S-box
+        if not validate_sbox(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format"}), 400
+
+        # Buat cipher dan enkripsi
+        cipher = SPNCipher(sbox)
+        ciphertext = cipher.encrypt(plaintext, key)
+
+        return jsonify({"ok": True, "ciphertext": ciphertext})
+
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": f"S-box '{sbox_id}' not found"}), 404
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/decrypt', methods=['POST'])
+def decrypt_text():
+    """Dekripsi teks menggunakan S-box tertentu"""
+    try:
+        data = request.get_json()
+
+        if not data or 'ciphertext' not in data or 'key' not in data or 'sbox_id' not in data:
+            return jsonify({"ok": False, "error": "Missing 'ciphertext', 'key', or 'sbox_id' in request body"}), 400
+
+        ciphertext = data['ciphertext']
+        key = data['key']
+        sbox_id = data['sbox_id']
+
+        # Ambil S-box berdasarkan ID
+        sbox = get_sbox_by_id(sbox_id)
+
+        # Validasi S-box
+        if not validate_sbox(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format"}), 400
+
+        # Buat cipher dan dekripsi
+        cipher = SPNCipher(sbox)
+        plaintext = cipher.decrypt(ciphertext, key)
+
+        return jsonify({"ok": True, "plaintext": plaintext})
+
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": f"S-box '{sbox_id}' not found"}), 404
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/custom_encrypt', methods=['POST'])
+def encrypt_with_custom_sbox():
+    """Enkripsi teks menggunakan S-box kustom"""
+    try:
+        data = request.get_json()
+
+        if not data or 'plaintext' not in data or 'key' not in data or 'sbox' not in data:
+            return jsonify({"ok": False, "error": "Missing 'plaintext', 'key', or 'sbox' in request body"}), 400
+
+        plaintext = data['plaintext']
+        key = data['key']
+        sbox = data['sbox']
+
+        # Validasi S-box kustom
+        if not validate_sbox(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format. Must contain 256 unique integers between 0-255."}), 400
+
+        # Buat cipher dan enkripsi
+        cipher = SPNCipher(sbox)
+        ciphertext = cipher.encrypt(plaintext, key)
+
+        return jsonify({"ok": True, "ciphertext": ciphertext})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/custom_decrypt', methods=['POST'])
+def decrypt_with_custom_sbox():
+    """Dekripsi teks menggunakan S-box kustom"""
+    try:
+        data = request.get_json()
+
+        if not data or 'ciphertext' not in data or 'key' not in data or 'sbox' not in data:
+            return jsonify({"ok": False, "error": "Missing 'ciphertext', 'key', or 'sbox' in request body"}), 400
+
+        ciphertext = data['ciphertext']
+        key = data['key']
+        sbox = data['sbox']
+
+        # Validasi S-box kustom
+        if not validate_sbox(sbox):
+            return jsonify({"ok": False, "error": "Invalid S-box format. Must contain 256 unique integers between 0-255."}), 400
+
+        # Buat cipher dan dekripsi
+        cipher = SPNCipher(sbox)
+        plaintext = cipher.decrypt(ciphertext, key)
+
+        return jsonify({"ok": True, "plaintext": plaintext})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

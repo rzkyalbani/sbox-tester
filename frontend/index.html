@@ -111,6 +111,95 @@
             <!-- Results will be loaded here -->
         </div>
 
+        <!-- Encryption/Decryption Section -->
+        <section class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Enkripsi & Dekripsi Teks</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div>
+                    <div class="mb-6">
+                        <label for="encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Pilih S-Box untuk Enkripsi/Dekripsi</label>
+                        <select id="encrypt-sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                            <option value="">Pilih S-Box...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Kunci (Password)</label>
+                        <input
+                            type="password"
+                            id="encrypt-key"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                            placeholder="Masukkan kunci enkripsi/dekripsi"
+                        >
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="plaintext-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Asli (Plaintext)</label>
+                        <textarea
+                            id="plaintext-input"
+                            rows="6"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                            placeholder="Masukkan teks yang akan dienkripsi...">
+                        </textarea>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button
+                            id="encrypt-btn"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            Enkripsi
+                        </button>
+                        <button
+                            id="decrypt-btn"
+                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                            Dekripsi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div>
+                    <div class="mb-6">
+                        <label for="ciphertext-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Terenkripsi (Ciphertext)</label>
+                        <textarea
+                            id="ciphertext-output"
+                            rows="6"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                            placeholder="Hasil enkripsi akan muncul di sini..."
+                            readonly>
+                        </textarea>
+                        <div class="mt-2 flex justify-end">
+                            <button
+                                id="copy-ciphertext-btn"
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                                Salin
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="decrypted-output" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Teks Didekripsi (Plaintext)</label>
+                        <textarea
+                            id="decrypted-output"
+                            rows="6"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                            placeholder="Hasil dekripsi akan muncul di sini..."
+                            readonly>
+                        </textarea>
+                        <div class="mt-2 flex justify-end">
+                            <button
+                                id="copy-decrypted-btn"
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+                                Salin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Metric Explanations Section -->
         <section class="mt-12">
             <details class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -571,6 +660,163 @@
                     metricsGrid.classList.remove('opacity-0');
                 }, 100);
             }
+        });
+    </script>
+
+    <!-- Encryption/Decryption JavaScript -->
+    <script>
+        // Load available S-boxes for encryption/decryption section
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load S-boxes for encryption/decryption dropdown
+            fetch('/api/sboxes')
+                .then(response => response.json())
+                .then(sboxes => {
+                    const selectElement = document.getElementById('encrypt-sbox-select');
+                    sboxes.forEach(sbox => {
+                        const option = document.createElement('option');
+                        option.value = sbox.id;
+                        option.textContent = `${sbox.name} (${sbox.source})`;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading S-boxes for encryption:', error);
+                });
+
+            // Set up encrypt button
+            document.getElementById('encrypt-btn').addEventListener('click', function() {
+                const plaintext = document.getElementById('plaintext-input').value;
+                const key = document.getElementById('encrypt-key').value;
+                const sboxId = document.getElementById('encrypt-sbox-select').value;
+
+                if (!plaintext) {
+                    alert('Silakan masukkan teks yang akan dienkripsi.');
+                    return;
+                }
+
+                if (!key) {
+                    alert('Silakan masukkan kunci enkripsi.');
+                    return;
+                }
+
+                if (!sboxId) {
+                    alert('Silakan pilih S-box untuk enkripsi.');
+                    return;
+                }
+
+                // Show loading overlay
+                showLoadingOverlay();
+
+                // Send the request to the API
+                fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plaintext: plaintext,
+                        key: key,
+                        sbox_id: sboxId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        document.getElementById('ciphertext-output').value = data.ciphertext;
+                        document.getElementById('decrypted-output').value = ''; // Clear decrypted output
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+
+                    // Hide loading overlay
+                    hideLoadingOverlay();
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                    hideLoadingOverlay();
+                });
+            });
+
+            // Set up decrypt button
+            document.getElementById('decrypt-btn').addEventListener('click', function() {
+                const ciphertext = document.getElementById('ciphertext-output').value;
+                const key = document.getElementById('encrypt-key').value;
+                const sboxId = document.getElementById('encrypt-sbox-select').value;
+
+                if (!ciphertext) {
+                    alert('Silakan masukkan ciphertext yang akan didekripsi (atau gunakan hasil enkripsi).');
+                    return;
+                }
+
+                if (!key) {
+                    alert('Silakan masukkan kunci dekripsi.');
+                    return;
+                }
+
+                if (!sboxId) {
+                    alert('Silakan pilih S-box untuk dekripsi.');
+                    return;
+                }
+
+                // Show loading overlay
+                showLoadingOverlay();
+
+                // Send the request to the API
+                fetch('/api/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ciphertext: ciphertext,
+                        key: key,
+                        sbox_id: sboxId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        document.getElementById('decrypted-output').value = data.plaintext;
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+
+                    // Hide loading overlay
+                    hideLoadingOverlay();
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                    hideLoadingOverlay();
+                });
+            });
+
+            // Set up copy ciphertext button
+            document.getElementById('copy-ciphertext-btn').addEventListener('click', function() {
+                const ciphertextOutput = document.getElementById('ciphertext-output');
+                ciphertextOutput.select();
+                document.execCommand('copy');
+
+                // Show temporary feedback
+                const originalText = this.textContent;
+                this.textContent = 'Disalin!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+
+            // Set up copy decrypted button
+            document.getElementById('copy-decrypted-btn').addEventListener('click', function() {
+                const decryptedOutput = document.getElementById('decrypted-output');
+                decryptedOutput.select();
+                document.execCommand('copy');
+
+                // Show temporary feedback
+                const originalText = this.textContent;
+                this.textContent = 'Disalin!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
         });
     </script>
 
