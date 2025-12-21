@@ -308,21 +308,16 @@
             const summaryCard = `
             <section class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
                 <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Ringkasan Analisis</h2>
-                <div class="p-6 \${scoreColor} border rounded-xl shadow-sm">
+                <div class="p-6 ${scoreColor} border rounded-xl shadow-sm">
                     <div class="flex flex-col items-center justify-center text-center">
                         <h3 class="text-3xl font-bold mb-2">
-                            \${overallScoreText}
-                            <span class="inline-block ml-3 px-3 py-1 rounded-full text-sm font-semibold \${
-                                overallScore === "Strong" ? "bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200" :
-                                overallScore === "Good" ? "bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200" :
-                                overallScore === "Moderate" ? "bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200" :
-                                "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200"
-                            }">Skor Kualitas</span>
+                            ${overallScoreText}
+                            <span class="inline-block ml-3 px-3 py-1 rounded-full text-sm font-semibold ${overallScore === "Strong" ? "bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200" : overallScore === "Good" ? "bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200" : overallScore === "Moderate" ? "bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200" : "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200"}">Skor Kualitas</span>
                         </h3>
                         <div class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">
-                            Nonlinearitas: \${metrics.NL.toFixed(2)}, SAC: \${(metrics.SAC * 100).toFixed(2)}%, DU: \${metrics.DU}
+                            Nonlinearitas: ${metrics.NL.toFixed(2)}, SAC: ${(metrics.SAC * 100).toFixed(2)}%, DU: ${metrics.DU}
                         </div>
-                        <p class="text-gray-700 dark:text-gray-300 max-w-2xl">\${scoreDescription}</p>
+                        <p class="text-gray-700 dark:text-gray-300 max-w-2xl">${scoreDescription}</p>
                     </div>
                 </div>
             </section>`;
@@ -359,15 +354,9 @@
 
                 metricsGrid += `
                     <div class="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-2">\${key}</h3>
-                        <div class="text-3xl font-bold \${
-                            key === 'NL' && value >= 100 ? 'text-green-600 dark:text-green-400' :
-                            key === 'SAC' && value >= 0.48 ? 'text-green-600 dark:text-green-400' :
-                            key === 'DU' && value <= 8 ? 'text-green-600 dark:text-green-400' :
-                            key === 'DU' && value > 32 ? 'text-red-600 dark:text-red-400' :
-                            'text-blue-600 dark:text-blue-400'
-                        }">\${displayValue}</div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">\${explanation}</p>
+                        <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-2">${key}</h3>
+                        <div class="text-3xl font-bold ${key === 'NL' && value >= 100 ? 'text-green-600 dark:text-green-400' : key === 'SAC' && value >= 0.48 ? 'text-green-600 dark:text-green-400' : key === 'DU' && value <= 8 ? 'text-green-600 dark:text-green-400' : key === 'DU' && value > 32 ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}">${displayValue}</div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">${explanation}</p>
                     </div>`;
             }
 

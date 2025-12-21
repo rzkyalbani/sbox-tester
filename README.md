@@ -1,4 +1,6 @@
-# S-Box Tester
+# S-Box Tester (Analisis Kriptografi S-Box)
+
+**Deskripsi Proyek:** Ini adalah aplikasi web yang dirancang untuk menganalisis dan menghitung berbagai properti kriptografi dari Substitution Boxes (S-boxes). S-box adalah komponen penting dalam banyak algoritma enkripsi simetris seperti AES, DES, dll. Aplikasi ini memungkinkan pengguna untuk memuat S-box bawaan atau memasukkan S-box kustom, kemudian menghitung berbagai metrik kriptografi penting untuk mengevaluasi kekuatan dan kualitas kriptografi dari S-box tersebut.
 
 A web application for computing cryptographic properties of S-boxes. This tool allows you to analyze predefined S-boxes or custom ones by calculating various cryptographic metrics.
 
