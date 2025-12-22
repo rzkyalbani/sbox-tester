@@ -107,6 +107,57 @@ def compute_metrics():
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
+# Import affine generator
+from affine_generator import generate_affine_sbox, get_predefined_matrices
+
+@app.route('/api/generate-affine-sbox', methods=['POST'])
+def generate_affine():
+    """Generate S-box using affine transformation"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"ok": False, "error": "Missing request body"}), 400
+        
+        # Get matrix value (can be hex string or integer)
+        matrix = data.get('matrix', '0x57')
+        if isinstance(matrix, str):
+            matrix_value = int(matrix, 16) if matrix.startswith('0x') else int(matrix)
+        else:
+            matrix_value = int(matrix)
+        
+        # Get additive constant (default: 0x63 for standard AES)
+        constant = int(data.get('constant', 0x63))
+        
+        # Validate inputs
+        if not (0 <= matrix_value <= 255):
+            return jsonify({"ok": False, "error": "Matrix value must be between 0 and 255"}), 400
+        
+        if not (0 <= constant <= 255):
+            return jsonify({"ok": False, "error": "Additive constant must be between 0 and 255"}), 400
+        
+        # Generate S-box
+        sbox = generate_affine_sbox(matrix_value, constant)
+        
+        return jsonify({
+            "ok": True,
+            "sbox": sbox,
+            "matrix": hex(matrix_value),
+            "constant": constant
+        })
+    
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route('/api/affine-matrices', methods=['GET'])
+def get_affine_matrices():
+    """Get list of predefined affine matrices"""
+    try:
+        matrices = get_predefined_matrices()
+        return jsonify({"ok": True, "matrices": matrices})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 # Import crypto engine
 from crypto_engine import SPNCipher, get_available_sboxes, get_sbox_by_id, validate_sbox
 
