@@ -1,6 +1,10 @@
 from flask import Flask, jsonify, request, send_from_directory
 import os
 import json
+import io
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 
 # Set up Flask app with proper static folder configuration
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -155,6 +159,115 @@ def get_affine_matrices():
     try:
         matrices = get_predefined_matrices()
         return jsonify({"ok": True, "matrices": matrices})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/sbox/upload-excel', methods=['POST'])
+def upload_sbox_excel():
+    """Upload S-box from Excel file"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({"ok": False, "error": "No file part in the request"}), 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"ok": False, "error": "No file selected"}), 400
+
+        if file and file.filename.lower().endswith(('.xlsx', '.xls')):
+            # Read file content
+            file_content = file.read()
+            # Load workbook from content
+            workbook = load_workbook(filename=io.BytesIO(file_content))
+            worksheet = workbook.active
+
+            # Read 256 values from the worksheet (16x16 grid)
+            sbox = []
+            for row in range(1, 17):  # 16 rows
+                for col in range(1, 17):  # 16 columns
+                    cell_value = worksheet.cell(row=row, column=col).value
+                    if cell_value is None:
+                        return jsonify({"ok": False, "error": f"Empty cell at row {row}, column {col}"}), 400
+                    try:
+                        val = int(cell_value)
+                        if val < 0 or val > 255:
+                            return jsonify({"ok": False, "error": f"Value {val} at row {row}, column {col} is out of range [0, 255]"}), 400
+                        sbox.append(val)
+                    except ValueError:
+                        return jsonify({"ok": False, "error": f"Invalid value '{cell_value}' at row {row}, column {col}, must be an integer"}), 400
+
+            if len(sbox) != 256:
+                return jsonify({"ok": False, "error": "Excel file must contain exactly 256 values (16x16 grid)"}), 400
+
+            # Validate that all values 0-255 are unique
+            if len(set(sbox)) != 256:
+                return jsonify({"ok": False, "error": "S-box must contain unique values"}), 400
+
+            return jsonify({"ok": True, "sbox": sbox})
+
+        else:
+            return jsonify({"ok": False, "error": "Invalid file type. Please upload an Excel file (.xlsx or .xls)"}), 400
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/sbox/download-excel', methods=['POST'])
+def download_sbox_excel():
+    """Download S-box as Excel file"""
+    try:
+        data = request.get_json()
+
+        if not data or 'sbox' not in data:
+            return jsonify({"ok": False, "error": "Missing 'sbox' in request body"}), 400
+
+        sbox = data['sbox']
+
+        # Validate input
+        if not isinstance(sbox, list) or len(sbox) != 256:
+            return jsonify({"ok": False, "error": "S-box must be a list of 256 integers"}), 400
+
+        for val in sbox:
+            if not isinstance(val, int) or val < 0 or val > 255:
+                return jsonify({"ok": False, "error": "All values must be integers between 0 and 255"}), 400
+
+        # Create a new workbook and select the active sheet
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "S-Box Data"
+
+        # Set up header
+        ws['A1'] = "S-Box 16x16 Grid (Row = High Nibble, Column = Low Nibble)"
+        ws['A1'].font = Font(bold=True)
+        ws.merge_cells('A1:P1')  # Merge 16 columns for header
+
+        # Add S-box values in a 16x16 grid starting from row 2, column 1
+        for i, value in enumerate(sbox):
+            row = (i // 16) + 2  # Start from row 2
+            col = (i % 16) + 1   # Start from column 1
+            ws.cell(row=row, column=col, value=value)
+
+            # Optional: Add some styling
+            cell = ws.cell(row=row, column=col)
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        # Adjust column widths for better visualization
+        for col in range(1, 17):  # Columns A to P
+            ws.column_dimensions[get_column_letter(col)].width = 6
+
+        # Create an in-memory buffer to hold the Excel file
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        # Return the Excel file as a response
+        from flask import Response
+        return Response(
+            buffer.getvalue(),
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': 'attachment; filename=sbox.xlsx'}
+        )
+
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
