@@ -6,10 +6,21 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
+import os
+import json
+from typing import Dict, List
+
 # Set up Flask app with proper static folder configuration
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 frontend_static = os.path.join(project_root, 'frontend', 'static')
 app = Flask(__name__, static_folder=frontend_static, static_url_path='/static')
+
+# Define directories for default and user S-boxes
+DEFAULT_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'sboxes')
+USER_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'user_sboxes')
+
+# Create user sboxes directory if it doesn't exist
+os.makedirs(USER_SBOXES_DIR, exist_ok=True)
 
 @app.route('/')
 def index():
@@ -29,13 +40,13 @@ def image_encryption():
 
 @app.route('/api/sboxes', methods=['GET'])
 def get_sboxes():
-    """Returns list of available predefined S-boxes"""
-    sboxes_dir = os.path.join(os.path.dirname(__file__), 'sboxes')
-    sbox_files = [f for f in os.listdir(sboxes_dir) if f.endswith('.json')]
-
+    """Returns list of available predefined S-boxes (both default and user)"""
     sboxes_info = []
-    for filename in sbox_files:
-        filepath = os.path.join(sboxes_dir, filename)
+
+    # Get default S-boxes
+    default_sbox_files = [f for f in os.listdir(DEFAULT_SBOXES_DIR) if f.endswith('.json')]
+    for filename in default_sbox_files:
+        filepath = os.path.join(DEFAULT_SBOXES_DIR, filename)
         with open(filepath, 'r') as f:
             data = json.load(f)
             # Create an ID from the filename without extension
@@ -44,7 +55,24 @@ def get_sboxes():
                 'id': sbox_id,
                 'name': data.get('name', ''),
                 'source': data.get('source', ''),
-                'description': data.get('description', '')
+                'description': data.get('description', ''),
+                'type': 'default'  # Indicate this is a default S-box
+            })
+
+    # Get user S-boxes
+    user_sbox_files = [f for f in os.listdir(USER_SBOXES_DIR) if f.endswith('.json')]
+    for filename in user_sbox_files:
+        filepath = os.path.join(USER_SBOXES_DIR, filename)
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+            # Create an ID from the filename without extension
+            sbox_id = os.path.splitext(filename)[0]
+            sboxes_info.append({
+                'id': sbox_id,
+                'name': data.get('name', ''),
+                'source': data.get('source', ''),
+                'description': data.get('description', ''),
+                'type': 'user'  # Indicate this is a user S-box
             })
 
     return jsonify(sboxes_info)
@@ -52,15 +80,21 @@ def get_sboxes():
 @app.route('/api/sbox/<sbox_id>', methods=['GET'])
 def get_sbox_by_id(sbox_id):
     """Returns the content of a specific S-box by ID"""
-    filepath = os.path.join(os.path.dirname(__file__), 'sboxes', f'{sbox_id}.json')
+    # First check in default S-boxes directory
+    default_filepath = os.path.join(DEFAULT_SBOXES_DIR, f'{sbox_id}.json')
+    if os.path.exists(default_filepath):
+        with open(default_filepath, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
 
-    if not os.path.exists(filepath):
-        return jsonify({"error": f"S-box '{sbox_id}' not found"}), 404
+    # Then check in user S-boxes directory
+    user_filepath = os.path.join(USER_SBOXES_DIR, f'{sbox_id}.json')
+    if os.path.exists(user_filepath):
+        with open(user_filepath, 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
 
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-
-    return jsonify(data)
+    return jsonify({"error": f"S-box '{sbox_id}' not found"}), 404
 
 @app.route('/api/compute', methods=['POST'])
 def compute_metrics():
@@ -159,6 +193,98 @@ def get_affine_matrices():
     try:
         matrices = get_predefined_matrices()
         return jsonify({"ok": True, "matrices": matrices})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/save-user-sbox', methods=['POST'])
+def save_user_sbox():
+    """Save a user-generated S-box to the user_sboxes directory"""
+    try:
+        data = request.get_json()
+
+        if not data or 'sbox' not in data or 'name' not in data:
+            return jsonify({"ok": False, "error": "Missing 'sbox' or 'name' in request body"}), 400
+
+        sbox = data['sbox']
+        name = data['name']
+        description = data.get('description', '')
+        source = data.get('source', 'User Generated')
+
+        # Validate S-box
+        if not isinstance(sbox, list) or len(sbox) != 256:
+            return jsonify({"ok": False, "error": "S-box must be a list of 256 integers"}), 400
+
+        for val in sbox:
+            if not isinstance(val, int) or val < 0 or val > 255:
+                return jsonify({"ok": False, "error": "All values must be integers between 0 and 255"}), 400
+
+        # Validate name
+        if not name or not isinstance(name, str):
+            return jsonify({"ok": False, "error": "Name must be a non-empty string"}), 400
+
+        # Create a safe filename from the name
+        # Replace special characters and spaces with underscores
+        import re
+        safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', name)
+
+        # Ensure the filename is not one of the default S-boxes
+        if safe_name in [os.path.splitext(f)[0] for f in os.listdir(DEFAULT_SBOXES_DIR) if f.endswith('.json')]:
+            return jsonify({"ok": False, "error": f"Cannot use name '{safe_name}' as it conflicts with a default S-box name"}), 400
+
+        # Check if a user S-box with this name already exists
+        filepath = os.path.join(USER_SBOXES_DIR, f'{safe_name}.json')
+        if os.path.exists(filepath):
+            return jsonify({"ok": False, "error": f"An S-box with the name '{name}' already exists"}), 400
+
+        # Save the S-box to the user directory
+        sbox_data = {
+            "name": name,
+            "source": source,
+            "description": description,
+            "sbox": sbox
+        }
+
+        with open(filepath, 'w') as f:
+            json.dump(sbox_data, f, indent=2)
+
+        return jsonify({
+            "ok": True,
+            "message": f"S-box '{name}' saved successfully",
+            "sbox_id": safe_name
+        })
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/delete-user-sbox/<sbox_id>', methods=['DELETE'])
+def delete_user_sbox(sbox_id):
+    """Delete a user-generated S-box from the user_sboxes directory"""
+    try:
+        # Validate sbox_id format
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', sbox_id):
+            return jsonify({"ok": False, "error": "Invalid S-box ID format"}), 400
+
+        # Check if the S-box ID is a default S-box (should not be deletable)
+        default_sbox_ids = [os.path.splitext(f)[0] for f in os.listdir(DEFAULT_SBOXES_DIR) if f.endswith('.json')]
+        if sbox_id in default_sbox_ids:
+            return jsonify({"ok": False, "error": f"Cannot delete default S-box '{sbox_id}'"}), 400
+
+        # Check if the S-box exists in user directory
+        filepath = os.path.join(USER_SBOXES_DIR, f'{sbox_id}.json')
+        if not os.path.exists(filepath):
+            return jsonify({"ok": False, "error": f"S-box '{sbox_id}' not found"}), 404
+
+        # Delete the S-box file
+        os.remove(filepath)
+
+        return jsonify({
+            "ok": True,
+            "message": f"S-box '{sbox_id}' deleted successfully"
+        })
+
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 

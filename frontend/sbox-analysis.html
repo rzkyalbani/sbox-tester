@@ -312,7 +312,7 @@
                     </div>
 
                     <!-- Text View (Hidden by default) -->
-                    <textarea id="custom-sbox" rows="4"
+                    <textarea id="custom-sbox" rows="20"
                         class="hidden w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="e.g: 99,224,149,199,47,218,49,104,... (256 values)">
                     </textarea>
@@ -407,6 +407,16 @@
                 'upload-excel': 'Upload from Excel',
                 'download-excel': 'Download to Excel',
                 'upload-excel-desc': 'Upload 16×16 S-box grid',
+                'save-sbox': 'Save S-Box',
+                'save-sbox-desc': 'Save your custom S-box',
+                'enter-sbox-name': 'Enter a name for your S-box:',
+                'enter-sbox-desc': 'Enter a description for your S-box (optional):',
+                'confirm-delete': 'Are you sure you want to delete this S-box?',
+                'saving': 'Saving S-box...',
+                'delete-sbox': 'Delete S-Box',
+                'delete-sbox-desc': 'Delete your custom S-box',
+                'select-sbox-first': 'Please select an S-box first',
+                'cannot-delete-default': 'Cannot delete default S-boxes',
             },
             id: {
                 'subtitle': 'Uji dan analisis metrik kriptografi dari S-Box Anda',
@@ -436,6 +446,16 @@
                 'upload-excel': 'Unggah dari Excel',
                 'download-excel': 'Unduh ke Excel',
                 'upload-excel-desc': 'Unggah grid S-box 16×16',
+                'save-sbox': 'Simpan S-Box',
+                'save-sbox-desc': 'Simpan S-Box kustom Anda',
+                'enter-sbox-name': 'Masukkan nama untuk S-Box Anda:',
+                'enter-sbox-desc': 'Masukkan deskripsi untuk S-Box Anda (opsional):',
+                'confirm-delete': 'Apakah Anda yakin ingin menghapus S-Box ini?',
+                'saving': 'Menyimpan S-Box...',
+                'delete-sbox': 'Hapus S-Box',
+                'delete-sbox-desc': 'Hapus S-Box kustom Anda',
+                'select-sbox-first': 'Silakan pilih S-Box terlebih dahulu',
+                'cannot-delete-default': 'Tidak dapat menghapus S-box bawaan',
             }
         };
 
@@ -498,6 +518,12 @@
                         const option = document.createElement('option');
                         option.value = sbox.id;
                         option.textContent = sbox.name || sbox.id;
+                        // Add different styling for user vs default S-boxes
+                        if (sbox.type === 'user') {
+                            option.style.fontStyle = 'italic';
+                        }
+                        // Store the type as a data attribute for easy access
+                        option.setAttribute('data-type', sbox.type);
                         select.appendChild(option);
                     });
                 })
@@ -533,22 +559,20 @@
             });
         });
 
-        // Initialize grid with 256 cells
+        // Initialize grid with 256 cells but without colors initially
         function initializeSBoxGrid() {
             const grid = document.getElementById('sboxGrid');
-            const colors = [
-                '#FFE5E5', '#E5F5FF', '#E5FFE5', '#FFF5E5', '#FFE5FF', '#E5FFFF',
-                '#FFE5F5', '#F5FFE5', '#F5E5FF', '#E5FFF5', '#FFF5FF', '#FFFFE5'
-            ];
+            // Clear any existing cells to prevent duplicates
+            grid.innerHTML = '';
 
             for (let i = 0; i < 256; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'sbox-cell';
-                cell.style.backgroundColor = colors[i % colors.length];
-                cell.style.color = '#333';
-                cell.textContent = i;
+                cell.style.backgroundColor = '#f3f4f6'; // Default light gray
+                cell.style.color = '#000'; // Use black text for consistency
+                cell.textContent = '';  // Biarkan kosong saat inisialisasi
                 cell.dataset.index = i;
-                cell.dataset.value = i;
+                cell.dataset.value = '';  // Kosongkan nilai awal
                 grid.appendChild(cell);
             }
         }
@@ -577,6 +601,25 @@
                     document.getElementById('custom-sbox').value = data.sbox.join(',');
                     // Update grid view
                     syncTextToGrid();
+
+                    // Ensure we're in grid view when loading a new S-box
+                    const gridView = document.getElementById('sboxGridView');
+                    const textView = document.getElementById('custom-sbox');
+                    const gridViewBtn = document.getElementById('gridViewBtn');
+                    const textViewBtn = document.getElementById('textViewBtn');
+
+                    if (textView.classList.contains('hidden')) {
+                        // Already in grid view, nothing to change
+                    } else {
+                        // Switch to grid view
+                        gridView.classList.remove('hidden');
+                        textView.classList.add('hidden');
+                        gridViewBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                        gridViewBtn.classList.add('bg-indigo-600', 'text-white');
+                        textViewBtn.classList.remove('bg-indigo-600', 'text-white');
+                        textViewBtn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                    }
+
                     // Show success message
                     alert('S-Box loaded successfully from Excel file!');
                 } else {
@@ -660,10 +703,16 @@
 
             const cells = document.querySelectorAll('.sbox-cell');
             cells.forEach((cell, index) => {
-                if (values[index] !== undefined && !isNaN(values[index])) {
-                    cell.textContent = values[index];
-                    cell.dataset.value = values[index];
-                }
+                // Karena kita sudah validasi bahwa values.length === 256,
+                // kita bisa langsung assign nilai tanpa pengecekan tambahan
+                cell.textContent = values[index];
+                cell.dataset.value = values[index];
+
+                // Update background color based on the value to make it visually distinctive
+                const hue = (values[index] * 1.4) % 360; // Use the value to determine color
+                cell.style.backgroundColor = `hsl(${hue}, 70%, 80%)`;
+                // Use black text for all values for consistency
+                cell.style.color = '#000';
             });
         }
 
@@ -671,7 +720,25 @@
         function syncGridToText() {
             const cells = document.querySelectorAll('.sbox-cell');
             const values = Array.from(cells).map(cell => cell.dataset.value);
-            document.getElementById('custom-sbox').value = values.join(',');
+
+            // Cek apakah semua nilai adalah string kosong (kondisi inisialisasi)
+            const allEmpty = values.every(value => value === '');
+
+            if (allEmpty) {
+                // Jika semua kosong, kosongkan textarea
+                document.getElementById('custom-sbox').value = '';
+            } else {
+                // Jika tidak, gabungkan nilai-nilai
+                document.getElementById('custom-sbox').value = values.join(',');
+            }
+
+            // Reset warna grid ke warna default saat kembali ke tampilan teks
+            cells.forEach(cell => {
+                if (cell.dataset.value === '') {
+                    cell.style.backgroundColor = '#f3f4f6'; // Default light gray
+                    cell.style.color = '#000'; // Use black text for consistency
+                }
+            });
         }
 
         // Load S-box button
@@ -685,10 +752,56 @@
             fetch(`/api/sbox/${sboxId}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Set the text area with the S-box values
                     document.getElementById('custom-sbox').value = data.sbox.join(',');
-                    syncTextToGrid(); // Update grid view
+                    // Update grid view to match the new S-box
+                    syncTextToGrid();
+
+                    // Ensure we're in grid view when loading a new S-box
+                    const gridView = document.getElementById('sboxGridView');
+                    const textView = document.getElementById('custom-sbox');
+                    const gridViewBtn = document.getElementById('gridViewBtn');
+                    const textViewBtn = document.getElementById('textViewBtn');
+
+                    if (textView.classList.contains('hidden')) {
+                        // Already in grid view, nothing to change
+                    } else {
+                        // Switch to grid view
+                        gridView.classList.remove('hidden');
+                        textView.classList.add('hidden');
+                        gridViewBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                        gridViewBtn.classList.add('bg-indigo-600', 'text-white');
+                        textViewBtn.classList.remove('bg-indigo-600', 'text-white');
+                        textViewBtn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                    }
                 })
                 .catch(error => console.error('Error loading S-box:', error));
+        });
+
+        // Toggle view functionality
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const textViewBtn = document.getElementById('textViewBtn');
+        const gridView = document.getElementById('sboxGridView');
+        const textView = document.getElementById('custom-sbox');
+
+        gridViewBtn.addEventListener('click', () => {
+            gridView.classList.remove('hidden');
+            textView.classList.add('hidden');
+            gridViewBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+            gridViewBtn.classList.add('bg-indigo-600', 'text-white');
+            textViewBtn.classList.remove('bg-indigo-600', 'text-white');
+            textViewBtn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+            syncTextToGrid();
+        });
+
+        textViewBtn.addEventListener('click', () => {
+            gridView.classList.add('hidden');
+            textView.classList.remove('hidden');
+            textViewBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+            textViewBtn.classList.add('bg-indigo-600', 'text-white');
+            gridViewBtn.classList.remove('bg-indigo-600', 'text-white');
+            gridViewBtn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+            syncGridToText();
         });
 
         // Generate Affine S-Box button
@@ -720,6 +833,25 @@
                         document.getElementById('custom-sbox').value = data.sbox.join(',');
                         // Update grid view
                         syncTextToGrid();
+
+                        // Ensure we're in grid view when generating a new S-box
+                        const gridView = document.getElementById('sboxGridView');
+                        const textView = document.getElementById('custom-sbox');
+                        const gridViewBtn = document.getElementById('gridViewBtn');
+                        const textViewBtn = document.getElementById('textViewBtn');
+
+                        if (textView.classList.contains('hidden')) {
+                            // Already in grid view, nothing to change
+                        } else {
+                            // Switch to grid view
+                            gridView.classList.remove('hidden');
+                            textView.classList.add('hidden');
+                            gridViewBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                            gridViewBtn.classList.add('bg-indigo-600', 'text-white');
+                            textViewBtn.classList.remove('bg-indigo-600', 'text-white');
+                            textViewBtn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-700', 'dark:text-gray-300');
+                        }
+
                         // Show success message
                         alert('Affine S-Box generated successfully!');
                     } else {
@@ -838,6 +970,185 @@
                     </div>
                 </div>
             `;
+        }
+
+        // Function to save user S-box
+        function saveUserSbox() {
+            // Sync grid to text first to ensure we have the latest values
+            syncGridToText();
+
+            const customSboxInput = document.getElementById('custom-sbox').value;
+            if (!customSboxInput) {
+                alert(translations[currentLang]['alert-enter']);
+                return;
+            }
+
+            const sbox = customSboxInput.split(',').map(val => parseInt(val.trim()));
+            if (sbox.length !== 256) {
+                alert('S-Box must contain exactly 256 values');
+                return;
+            }
+
+            if (sbox.some(val => isNaN(val) || val < 0 || val > 255)) {
+                alert('All S-Box values must be integers between 0 and 255');
+                return;
+            }
+
+            // Get name from user
+            const name = prompt(translations[currentLang]['enter-sbox-name'] || 'Enter a name for your S-box:');
+            if (!name) {
+                alert('S-box name is required');
+                return;
+            }
+
+            // Get optional description
+            const description = prompt(translations[currentLang]['enter-sbox-desc'] || 'Enter a description for your S-box (optional):', '');
+
+            // Show loading
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingMessage').textContent = translations[currentLang]['saving'];
+
+            fetch('/api/save-user-sbox', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sbox: sbox,
+                    name: name,
+                    description: description,
+                    source: 'User Generated'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                if (data.ok) {
+                    alert(data.message);
+                    // Reload the S-box list to include the new S-box
+                    reloadSboxList();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                alert('Error: ' + error.message);
+            });
+        }
+
+        // Function to delete user S-box
+        function deleteUserSbox(sboxId) {
+            if (!confirm(translations[currentLang]['confirm-delete'] || `Are you sure you want to delete S-box "${sboxId}"?`)) {
+                return;
+            }
+
+            fetch(`/api/delete-user-sbox/${sboxId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert(data.message);
+                    // Reload the S-box list to remove the deleted S-box
+                    reloadSboxList();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+
+        // Function to reload S-box list in the dropdown
+        function reloadSboxList() {
+            const select = document.getElementById('sbox-select');
+            // Clear current options except the first one
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+            // Add the default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = translations[currentLang]['choose-sbox'] || 'Choose S-Box...';
+            select.appendChild(defaultOption);
+
+            // Fetch and add new S-boxes
+            fetch('/api/sboxes')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(sbox => {
+                        const option = document.createElement('option');
+                        option.value = sbox.id;
+                        option.textContent = sbox.name || sbox.id;
+                        // Add different styling for user vs default S-boxes
+                        if (sbox.type === 'user') {
+                            option.style.fontStyle = 'italic';
+                        }
+                        // Store the type as a data attribute for easy access
+                        option.setAttribute('data-type', sbox.type);
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading S-boxes:', error));
+        }
+
+        // Add save and delete buttons to the UI (we'll add them dynamically)
+        const buttonContainer = document.querySelector('.flex.flex-wrap.justify-center.gap-4.mt-6');
+        if (buttonContainer) {
+            const saveButton = document.createElement('div');
+            saveButton.className = 'flex flex-col items-center';
+            saveButton.innerHTML = `
+                <button id="save-sbox-btn" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold whitespace-nowrap shadow-lg hover:shadow-xl flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span data-i18n="save-sbox">Save S-Box</span>
+                </button>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1" data-i18n="save-sbox-desc">Save your custom S-box</p>
+            `;
+            buttonContainer.appendChild(saveButton);
+
+            // Add event listener to the save button
+            document.getElementById('save-sbox-btn').addEventListener('click', saveUserSbox);
+
+            // Add delete button
+            const deleteButton = document.createElement('div');
+            deleteButton.className = 'flex flex-col items-center';
+            deleteButton.innerHTML = `
+                <button id="delete-sbox-btn" class="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold whitespace-nowrap shadow-lg hover:shadow-xl flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span data-i18n="delete-sbox">Delete S-Box</span>
+                </button>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1" data-i18n="delete-sbox-desc">Delete your custom S-box</p>
+            `;
+            buttonContainer.appendChild(deleteButton);
+
+            // Add event listener to the delete button
+            document.getElementById('delete-sbox-btn').addEventListener('click', function() {
+                // Get the current selected S-box ID from the dropdown
+                const selectElement = document.getElementById('sbox-select');
+                const selectedSboxId = selectElement.value;
+
+                if (!selectedSboxId) {
+                    alert(translations[currentLang]['select-sbox-first'] || 'Please select an S-box first');
+                    return;
+                }
+
+                // Get the selected option element to check its type
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const sboxType = selectedOption.getAttribute('data-type');
+
+                // Check if it's a default S-box (should not be deletable)
+                if (sboxType !== 'user') {
+                    alert(translations[currentLang]['cannot-delete-default'] || 'Cannot delete default S-boxes');
+                    return;
+                }
+
+                deleteUserSbox(selectedSboxId);
+            });
         }
     </script>
 

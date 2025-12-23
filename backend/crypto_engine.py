@@ -476,17 +476,23 @@ class SPNCipher:
 
 def get_available_sboxes() -> List[Dict[str, str]]:
     """
-    Mendapatkan daftar S-box yang tersedia dari direktori sboxes.
-    
+    Mendapatkan daftar S-box yang tersedia dari direktori sboxes (default dan user).
+
     Returns:
         Daftar informasi S-box
     """
-    sboxes_dir = os.path.join(os.path.dirname(__file__), 'sboxes')
-    sbox_files = [f for f in os.listdir(sboxes_dir) if f.endswith('.json')]
-    
+    import os
+
+    # Define directories
+    DEFAULT_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'sboxes')
+    USER_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'user_sboxes')
+
     sboxes_info = []
-    for filename in sbox_files:
-        filepath = os.path.join(sboxes_dir, filename)
+
+    # Get default S-boxes
+    default_sbox_files = [f for f in os.listdir(DEFAULT_SBOXES_DIR) if f.endswith('.json')]
+    for filename in default_sbox_files:
+        filepath = os.path.join(DEFAULT_SBOXES_DIR, filename)
         with open(filepath, 'r') as f:
             data = json.load(f)
             # Buat ID dari nama file tanpa ekstensi
@@ -495,31 +501,59 @@ def get_available_sboxes() -> List[Dict[str, str]]:
                 'id': sbox_id,
                 'name': data.get('name', ''),
                 'source': data.get('source', ''),
-                'description': data.get('description', '')
+                'description': data.get('description', ''),
+                'type': 'default'  # Indicate this is a default S-box
             })
-    
+
+    # Get user S-boxes if directory exists
+    if os.path.exists(USER_SBOXES_DIR):
+        user_sbox_files = [f for f in os.listdir(USER_SBOXES_DIR) if f.endswith('.json')]
+        for filename in user_sbox_files:
+            filepath = os.path.join(USER_SBOXES_DIR, filename)
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                # Buat ID dari nama file tanpa ekstensi
+                sbox_id = os.path.splitext(filename)[0]
+                sboxes_info.append({
+                    'id': sbox_id,
+                    'name': data.get('name', ''),
+                    'source': data.get('source', ''),
+                    'description': data.get('description', ''),
+                    'type': 'user'  # Indicate this is a user S-box
+                })
+
     return sboxes_info
 
 
 def get_sbox_by_id(sbox_id: str) -> List[int]:
     """
     Mendapatkan konten S-box berdasarkan ID.
-    
+
     Args:
         sbox_id: ID S-box
-        
+
     Returns:
         Daftar nilai S-box
     """
-    filepath = os.path.join(os.path.dirname(__file__), 'sboxes', f'{sbox_id}.json')
-    
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"S-box '{sbox_id}' tidak ditemukan")
-    
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    
-    return data['sbox']
+    # Define directories
+    DEFAULT_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'sboxes')
+    USER_SBOXES_DIR = os.path.join(os.path.dirname(__file__), 'user_sboxes')
+
+    # First check in default S-boxes directory
+    default_filepath = os.path.join(DEFAULT_SBOXES_DIR, f'{sbox_id}.json')
+    if os.path.exists(default_filepath):
+        with open(default_filepath, 'r') as f:
+            data = json.load(f)
+        return data['sbox']
+
+    # Then check in user S-boxes directory
+    user_filepath = os.path.join(USER_SBOXES_DIR, f'{sbox_id}.json')
+    if os.path.exists(user_filepath):
+        with open(user_filepath, 'r') as f:
+            data = json.load(f)
+        return data['sbox']
+
+    raise FileNotFoundError(f"S-box '{sbox_id}' tidak ditemukan")
 
 
 def validate_sbox(sbox: List[int]) -> bool:
