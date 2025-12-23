@@ -591,6 +591,8 @@
                         document.getElementById('custom-sbox').value = data.sbox.join(',');
                         // Update grid view
                         syncTextToGrid();
+                        // Show success message
+                        alert('Affine S-Box generated successfully!');
                     } else {
                         alert('Error: ' + data.error);
                     }
@@ -603,6 +605,9 @@
 
         // Compute metrics
         document.getElementById('compute-btn').addEventListener('click', function () {
+            // Sync grid to text first to ensure we have the latest values
+            syncGridToText();
+
             const customSboxInput = document.getElementById('custom-sbox').value;
             if (!customSboxInput) {
                 alert(translations[currentLang]['alert-enter']);
@@ -613,6 +618,19 @@
             document.getElementById('loadingMessage').textContent = translations[currentLang]['computing'];
 
             const sbox = customSboxInput.split(',').map(val => parseInt(val.trim()));
+
+            // Validate S-Box
+            if (sbox.length !== 256) {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                alert('S-Box must contain exactly 256 values');
+                return;
+            }
+
+            if (sbox.some(val => isNaN(val) || val < 0 || val > 255)) {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                alert('All S-Box values must be integers between 0 and 255');
+                return;
+            }
 
             fetch('/api/compute', {
                 method: 'POST',
@@ -693,6 +711,7 @@
             `;
         }
     </script>
+
 </body>
 
 </html>

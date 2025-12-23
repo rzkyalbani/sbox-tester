@@ -1,105 +1,206 @@
 <!DOCTYPE html>
-<html lang="id" class="">
+<html lang="en" class="">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enkripsi Gambar - Analisis Kriptografi S-Box</title>
-    <!-- TailwindCSS CDN -->
+    <title>Image Encryption - Cryptographic Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
-    <!-- Enable dark mode in tailwind config -->
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } },
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                    },
+                }
+            }
         }
     </script>
-</head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <!-- Header Section with controls -->
-        <header class="text-center mb-12 flex flex-col sm:flex-row justify-between items-center">
-            <div>
-                <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-2">Enkripsi Gambar</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300">Enkripsi dan dekripsi gambar menggunakan S-Box</p>
-            </div>
 
-            <!-- Dark Mode Toggle -->
-            <div class="flex space-x-4 mt-4 sm:mt-0">
-                <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600">
-                    <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                </button>
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass-effect {
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .image-preview-container {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .dark .image-preview-container {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen font-sans antialiased">
+
+    <!-- Floating Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div
+            class="absolute top-20 left-10 w-72 h-72 bg-orange-300 dark:bg-orange-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-float">
+        </div>
+        <div class="absolute top-40 right-10 w-72 h-72 bg-amber-300 dark:bg-amber-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-float"
+            style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 left-1/2 w-72 h-72 bg-teal-300 dark:bg-teal-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-float"
+            style="animation-delay: 4s;"></div>
+    </div>
+
+    <div class="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="mb-12 animate-slide-up">
+            <div class="glass-effect rounded-3xl p-6 shadow-2xl">
+                <div class="flex flex-col sm:flex-row justify-between items-center">
+                    <div class="text-center sm:text-left mb-4 sm:mb-0">
+                        <div class="flex items-center justify-center sm:justify-start space-x-3 mb-2">
+                            <div
+                                class="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white">
+                                <span class="gradient-text">Image</span> Encryption
+                            </h1>
+                        </div>
+                        <p class="text-lg text-gray-700 dark:text-gray-200" data-i18n="subtitle">Encrypt and decrypt
+                            images using S-Box</p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <a href="/"
+                            class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg hover:shadow-lg transition-all duration-200 flex items-center font-medium">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            <span data-i18n="back">Back to Dashboard</span>
+                        </a>
+                        <button id="langToggle"
+                            class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg hover:shadow-lg transition-all duration-200 font-medium">
+                            <span id="langText">EN</span>
+                        </button>
+                        <button id="themeToggle"
+                            class="p-2 rounded-lg bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                            <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <!-- Navigation Back to Dashboard -->
-        <div class="mb-8">
-            <a href="/" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        <!-- Encryption/Decryption Section -->
+        <section class="glass-effect rounded-3xl shadow-2xl p-8 mb-10 animate-fade-in" style="animation-delay: 0.1s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-8 h-8 mr-3 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
                 </svg>
-                Kembali ke Dashboard
-            </a>
-        </div>
-
-        <!-- Image Encryption/Decryption Section -->
-        <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                Enkripsi & Dekripsi Gambar
+                <span data-i18n="encrypt-decrypt">Encrypt & Decrypt Image</span>
             </h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Input Section -->
                 <div class="space-y-6">
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                        <label for="image-encrypt-sbox-select" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <label for="image-encrypt-sbox-select"
+                            class="block text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                                </path>
                             </svg>
-                            Pilih S-Box untuk Enkripsi/Dekripsi Gambar
+                            <span data-i18n="select-sbox">Select S-Box</span>
                         </label>
-                        <select id="image-encrypt-sbox-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                            <option value="">Pilih S-Box...</option>
+                        <select id="image-encrypt-sbox-select"
+                            class="w-full p-3 pr-10 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="" data-i18n="choose-sbox">Choose S-Box...</option>
                         </select>
                     </div>
 
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                        <label for="image-encrypt-key" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <label for="image-encrypt-key"
+                            class="block text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-yellow-600 dark:text-yellow-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                </path>
                             </svg>
-                            Kunci (Password)
+                            <span data-i18n="key">Key (Password)</span>
                         </label>
-                        <input
-                            type="password"
-                            id="image-encrypt-key"
-                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                            placeholder="Masukkan kunci enkripsi/dekripsi gambar"
-                        >
+                        <input type="password" id="image-encrypt-key"
+                            class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            placeholder="Enter encryption/decryption key">
                     </div>
 
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                        <label for="image-input" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <label for="image-input"
+                            class="block text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                             </svg>
-                            Unggah Gambar
+                            <span data-i18n="upload-image">Upload Image</span>
                         </label>
                         <div class="flex items-center justify-center w-full">
-                            <label for="image-input" class="file-upload-area">
+                            <label for="image-input"
+                                class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-10 h-10 mb-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                     </svg>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Klik untuk mengunggah</span> atau seret dan lepas</p>
+                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold"
+                                            data-i18n="click-upload">Click to upload</span> <span data-i18n="or-drag">or
+                                            drag and drop</span></p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (MAX. 5MB)</p>
                                 </div>
                                 <input id="image-input" type="file" class="hidden" accept="image/*" />
@@ -109,73 +210,86 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <button
-                            id="image-encrypt-btn"
-                            class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        <button id="image-encrypt-btn"
+                            class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
                             </svg>
-                            Enkripsi Gambar
+                            <span data-i18n="encrypt">Encrypt</span>
                         </button>
-                        <button
-                            id="image-decrypt-btn"
-                            class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        <button id="image-decrypt-btn"
+                            class="flex-1 bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 text-white px-6 py-3 rounded-lg text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z">
+                                </path>
                             </svg>
-                            Dekripsi Gambar
+                            <span data-i18n="decrypt">Decrypt</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Output Section -->
                 <div class="space-y-6">
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
                             </svg>
-                            Pratinjau Gambar
+                            <span data-i18n="preview">Image Preview</span>
                         </label>
-                        <div class="flex flex-col items-center justify-center">
-                            <div class="image-preview-container">
-                                <img id="original-image-preview" src="" alt="Pratinjau Gambar Asli" class="max-h-full max-w-full object-contain hidden">
-                                <div id="original-image-placeholder" class="text-center text-gray-500 dark:text-gray-400 p-4">
-                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <p>Pratinjau gambar asli akan muncul di sini</p>
-                                </div>
+                        <div class="image-preview-container">
+                            <img id="original-image-preview" src="" alt="Original Image Preview"
+                                class="max-h-full max-w-full object-contain hidden">
+                            <div id="original-image-placeholder"
+                                class="text-center text-gray-500 dark:text-gray-400 p-4">
+                                <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <p data-i18n="preview-placeholder">Original image preview will appear here</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                        <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-amber-600 dark:text-amber-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                </path>
                             </svg>
-                            Pratinjau Hasil
+                            <span data-i18n="result">Result Preview</span>
                         </label>
-                        <div class="flex flex-col items-center justify-center">
-                            <div class="image-preview-container">
-                                <img id="result-image-preview" src="" alt="Pratinjau Hasil" class="max-h-full max-w-full object-contain hidden">
-                                <div id="result-image-placeholder" class="text-center text-gray-500 dark:text-gray-400 p-4">
-                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <p>Hasil enkripsi/dekripsi akan muncul di sini</p>
-                                </div>
+                        <div class="image-preview-container">
+                            <img id="result-image-preview" src="" alt="Result Preview"
+                                class="max-h-full max-w-full object-contain hidden">
+                            <div id="result-image-placeholder" class="text-center text-gray-500 dark:text-gray-400 p-4">
+                                <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <p data-i18n="result-placeholder">Encrypted/decrypted result will appear here</p>
                             </div>
                         </div>
-                        <div class="mt-2 flex justify-end">
-                            <button
-                                id="download-result-btn"
-                                class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow hidden flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        <div class="mt-4 flex justify-end">
+                            <button id="download-result-btn"
+                                class="hidden bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-300 shadow-lg flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
-                                Unduh Hasil
+                                <span data-i18n="download">Download Result</span>
                             </button>
                         </div>
                     </div>
@@ -185,14 +299,116 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
-        <div class="h-10 w-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-        <p id="loadingMessage" class="mt-4 text-gray-700 text-lg font-medium"></p>
+    <div id="loadingOverlay"
+        class="hidden fixed inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+        <div
+            class="h-12 w-12 border-4 border-orange-500 dark:border-orange-400 border-t-transparent rounded-full animate-spin">
+        </div>
+        <p id="loadingMessage" class="mt-4 text-gray-900 dark:text-gray-100 text-lg font-medium"></p>
     </div>
 
     <script>
-        // Load available S-boxes on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        // Translations
+        const translations = {
+            en: {
+                'subtitle': 'Encrypt and decrypt images using S-Box',
+                'back': 'Back to Dashboard',
+                'encrypt-decrypt': 'Encrypt & Decrypt Image',
+                'select-sbox': 'Select S-Box',
+                'choose-sbox': 'Choose S-Box...',
+                'key': 'Key (Password)',
+                'upload-image': 'Upload Image',
+                'click-upload': 'Click to upload',
+                'or-drag': 'or drag and drop',
+                'preview': 'Image Preview',
+                'result': 'Result Preview',
+                'encrypt': 'Encrypt',
+                'decrypt': 'Decrypt',
+                'download': 'Download Result',
+                'encrypting': 'Encrypting image...',
+                'decrypting': 'Decrypting image...',
+                'preview-placeholder': 'Original image preview will appear here',
+                'result-placeholder': 'Encrypted/decrypted result will appear here',
+                'alert-sbox': 'Please select an S-box first',
+                'alert-key': 'Please enter encryption key',
+                'alert-image': 'Please select an image first',
+            },
+            id: {
+                'subtitle': 'Enkripsi dan dekripsi gambar menggunakan S-Box',
+                'back': 'Kembali ke Dashboard',
+                'encrypt-decrypt': 'Enkripsi & Dekripsi Gambar',
+                'select-sbox': 'Pilih S-Box',
+                'choose-sbox': 'Pilih S-Box...',
+                'key': 'Kunci (Password)',
+                'upload-image': 'Unggah Gambar',
+                'click-upload': 'Klik untuk mengunggah',
+                'or-drag': 'atau seret dan lepas',
+                'preview': 'Pratinjau Gambar',
+                'result': 'Pratinjau Hasil',
+                'encrypt': 'Enkripsi',
+                'decrypt': 'Dekripsi',
+                'download': 'Unduh Hasil',
+                'encrypting': 'Mengenkripsi gambar...',
+                'decrypting': 'Mendekripsi gambar...',
+                'preview-placeholder': 'Pratinjau gambar asli akan muncul di sini',
+                'result-placeholder': 'Hasil enkripsi/dekripsi akan muncul di sini',
+                'alert-sbox': 'Silakan pilih S-box terlebih dahulu',
+                'alert-key': 'Silakan masukkan kunci enkripsi',
+                'alert-image': 'Silakan pilih gambar terlebih dahulu',
+            }
+        };
+
+        // Language toggle
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('langText').textContent = lang.toUpperCase();
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+        }
+
+        document.getElementById('langToggle').addEventListener('click', () => {
+            setLanguage(currentLang === 'en' ? 'id' : 'en');
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        if (savedTheme === 'dark') {
+            html.classList.add('dark');
+            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+            }
+        });
+
+        // Load S-boxes
+        document.addEventListener('DOMContentLoaded', function () {
+            setLanguage(currentLang);
+
             fetch('/api/sboxes')
                 .then(response => response.json())
                 .then(data => {
@@ -207,15 +423,13 @@
                 .catch(error => console.error('Error loading S-boxes:', error));
         });
 
-        // Image input change event
-        document.getElementById('image-input').addEventListener('change', function(e) {
+        // Image input change
+        document.getElementById('image-input').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
                 document.getElementById('image-filename').textContent = file.name;
-                
-                // Preview the image
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     const originalPreview = document.getElementById('original-image-preview');
                     originalPreview.src = event.target.result;
                     originalPreview.classList.remove('hidden');
@@ -225,183 +439,124 @@
             }
         });
 
-        // Image encrypt button functionality
-        document.getElementById('image-encrypt-btn').addEventListener('click', function() {
+        // Encrypt button
+        document.getElementById('image-encrypt-btn').addEventListener('click', function () {
             const sboxId = document.getElementById('image-encrypt-sbox-select').value;
             const key = document.getElementById('image-encrypt-key').value;
-            const imageInput = document.getElementById('image-input');
-            const file = imageInput.files[0];
+            const file = document.getElementById('image-input').files[0];
 
             if (!sboxId) {
-                alert('Silakan pilih S-box terlebih dahulu');
+                alert(translations[currentLang]['alert-sbox']);
                 return;
             }
-
             if (!key) {
-                alert('Silakan masukkan kunci enkripsi');
+                alert(translations[currentLang]['alert-key']);
                 return;
             }
-
             if (!file) {
-                alert('Silakan pilih gambar terlebih dahulu');
+                alert(translations[currentLang]['alert-image']);
                 return;
             }
 
-            // Show loading
             document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingMessage').textContent = 'Mengenkripsi gambar...';
+            document.getElementById('loadingMessage').textContent = translations[currentLang]['encrypting'];
 
-            // Create form data
             const formData = new FormData();
             formData.append('image', file);
             formData.append('key', key);
             formData.append('sbox_id', sboxId);
 
-            // Send to backend
             fetch('/api/image/encrypt', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob();
-                } else {
-                    throw new Error('Gagal mengenkripsi gambar');
-                }
-            })
-            .then(blob => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                
-                // Create a temporary URL for the encrypted image
-                const resultUrl = URL.createObjectURL(blob);
-                
-                // Update the result preview
-                const resultPreview = document.getElementById('result-image-preview');
-                resultPreview.src = resultUrl;
-                resultPreview.classList.remove('hidden');
-                document.getElementById('result-image-placeholder').classList.add('hidden');
-                
-                // Show download button
-                document.getElementById('download-result-btn').classList.remove('hidden');
-                
-                // Add download functionality to the button
-                document.getElementById('download-result-btn').onclick = function() {
-                    const a = document.createElement('a');
-                    a.href = resultUrl;
-                    a.download = 'encrypted_image.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                };
-            })
-            .catch(error => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                alert('Error: ' + error.message);
-            });
+                .then(response => {
+                    if (response.ok) return response.blob();
+                    throw new Error('Failed to encrypt image');
+                })
+                .then(blob => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    const resultUrl = URL.createObjectURL(blob);
+                    const resultPreview = document.getElementById('result-image-preview');
+                    resultPreview.src = resultUrl;
+                    resultPreview.classList.remove('hidden');
+                    document.getElementById('result-image-placeholder').classList.add('hidden');
+                    document.getElementById('download-result-btn').classList.remove('hidden');
+
+                    document.getElementById('download-result-btn').onclick = function () {
+                        const a = document.createElement('a');
+                        a.href = resultUrl;
+                        a.download = 'encrypted_image.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                })
+                .catch(error => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    alert('Error: ' + error.message);
+                });
         });
 
-        // Image decrypt button functionality
-        document.getElementById('image-decrypt-btn').addEventListener('click', function() {
+        // Decrypt button
+        document.getElementById('image-decrypt-btn').addEventListener('click', function () {
             const sboxId = document.getElementById('image-encrypt-sbox-select').value;
             const key = document.getElementById('image-encrypt-key').value;
-            const imageInput = document.getElementById('image-input');
-            const file = imageInput.files[0];
+            const file = document.getElementById('image-input').files[0];
 
             if (!sboxId) {
-                alert('Silakan pilih S-box terlebih dahulu');
+                alert(translations[currentLang]['alert-sbox']);
                 return;
             }
-
             if (!key) {
-                alert('Silakan masukkan kunci dekripsi');
+                alert(translations[currentLang]['alert-key']);
                 return;
             }
-
             if (!file) {
-                alert('Silakan pilih gambar terlebih dahulu');
+                alert(translations[currentLang]['alert-image']);
                 return;
             }
 
-            // Show loading
             document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingMessage').textContent = 'Mendekripsi gambar...';
+            document.getElementById('loadingMessage').textContent = translations[currentLang]['decrypting'];
 
-            // Create form data
             const formData = new FormData();
             formData.append('image', file);
             formData.append('key', key);
             formData.append('sbox_id', sboxId);
 
-            // Send to backend
             fetch('/api/image/decrypt', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob();
-                } else {
-                    throw new Error('Gagal mendekripsi gambar');
-                }
-            })
-            .then(blob => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                
-                // Create a temporary URL for the decrypted image
-                const resultUrl = URL.createObjectURL(blob);
-                
-                // Update the result preview
-                const resultPreview = document.getElementById('result-image-preview');
-                resultPreview.src = resultUrl;
-                resultPreview.classList.remove('hidden');
-                document.getElementById('result-image-placeholder').classList.add('hidden');
-                
-                // Show download button
-                document.getElementById('download-result-btn').classList.remove('hidden');
-                
-                // Add download functionality to the button
-                document.getElementById('download-result-btn').onclick = function() {
-                    const a = document.createElement('a');
-                    a.href = resultUrl;
-                    a.download = 'decrypted_image.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                };
-            })
-            .catch(error => {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                alert('Error: ' + error.message);
-            });
-        });
+                .then(response => {
+                    if (response.ok) return response.blob();
+                    throw new Error('Failed to decrypt image');
+                })
+                .then(blob => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    const resultUrl = URL.createObjectURL(blob);
+                    const resultPreview = document.getElementById('result-image-preview');
+                    resultPreview.src = resultUrl;
+                    resultPreview.classList.remove('hidden');
+                    document.getElementById('result-image-placeholder').classList.add('hidden');
+                    document.getElementById('download-result-btn').classList.remove('hidden');
 
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const html = document.documentElement;
-
-        // Check for saved theme preference or respect OS preference
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        
-        if (savedTheme === 'dark') {
-            html.classList.add('dark');
-            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
-        } else {
-            html.classList.remove('dark');
-            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
-        }
-
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            
-            if (html.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
-            } else {
-                localStorage.setItem('theme', 'light');
-                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
-            }
+                    document.getElementById('download-result-btn').onclick = function () {
+                        const a = document.createElement('a');
+                        a.href = resultUrl;
+                        a.download = 'decrypted_image.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                })
+                .catch(error => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    alert('Error: ' + error.message);
+                });
         });
     </script>
 </body>
+
 </html>
